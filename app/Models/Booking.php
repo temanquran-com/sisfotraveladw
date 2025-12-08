@@ -1,0 +1,103 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+
+class Booking extends Model
+{
+     use HasFactory;
+
+    protected $fillable = [
+        'customer_id',
+        'paket_umroh_id',
+        'jadwal_keberangkatan_id',
+        'booking_code',
+        'status',
+        'total_price',
+        'metode_pembayaran',
+        'created_by',
+    ];
+
+    protected $casts = [
+        'total_price' => 'decimal:2',
+    ];
+
+    // RELATIONS
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    public function paketUmroh()
+    {
+        return $this->belongsTo(PaketUmroh::class, 'paket_umroh_id');
+    }
+
+    public function jadwalKeberangkatan()
+    {
+        return $this->belongsTo(JadwalKeberangkatan::class, 'jadwal_keberangkatan_id');
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(CustomerDocument::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    // BOOT: Auto-generate booking code
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($booking) {
+            if (! $booking->booking_code) {
+                $booking->booking_code = 'BK-'.Str::upper(Str::random(8));
+            }
+        });
+
+         // after creating a booking, decrement sisa_quota automatically (optional)
+        static::created(function ($booking) {
+            try {
+                if ($booking->jadwal_keberangkatan_id) {
+                    $jadwal = $booking->jadwal;
+                    if ($jadwal) {
+                        $jadwal->decrement('sisa_quota', 1);
+                    }
+                }
+            } catch (\Throwable $e) {
+                // swallow to avoid breaking booking creation in edge cases
+            }
+        });
+
+        // on deleting booking, increment sisa_quota if not canceled
+        static::deleted(function ($booking) {
+            try {
+                if ($booking->jadwal_keberangkatan_id) {
+                    $jadwal = $booking->jadwal;
+                    if ($jadwal && $booking->status !== 'canceled') {
+                        $jadwal->increment('sisa_quota', 1);
+                    }
+                }
+            } catch (\Throwable $e) {
+            }
+        });
+    }
+
+    public function getIsFullyPaidAttribute()
+    {
+        return $this->payments()->sum('amount') >= $this->total_price;
+    }
+}
