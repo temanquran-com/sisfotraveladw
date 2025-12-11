@@ -13,6 +13,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\TimePicker;
+use Filament\Forms\Components\Select;
 
 class JadwalKeberangkatanResource extends Resource
 {
@@ -33,12 +34,6 @@ class JadwalKeberangkatanResource extends Resource
                     ->searchable()
                     ->preload()
                     ->default(null),
-                // Forms\Components\TextInput::make('tour_leader_id')
-                //     ->numeric()
-                //     ->default(null),
-                // Forms\Components\TextInput::make('tour_leader_name')
-                //     ->maxLength(255)
-                //     ->default(null),
                 Forms\Components\Select::make('tour_leader_id')
                     ->label('Tour Leader')
                     ->relationship('tourLeader', 'nama_tour_leader')
@@ -104,7 +99,18 @@ class JadwalKeberangkatanResource extends Resource
                     ->required()
                     ->numeric()
                     ->default(0),
-                Forms\Components\TextInput::make('status')
+                // Forms\Components\TextInput::make('status')
+                //     ->required(),
+                Select::make('status')
+                    ->label("Status")
+                    ->options([
+                    'draft' => 'Draft',
+                    'open' => 'Open',
+                    'closed' => 'Closed',
+                    'full' => 'Full',
+                    'canceled' => 'Canceled',
+                    ])
+                    ->default('draft')
                     ->required(),
             ]);
     }

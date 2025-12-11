@@ -25,9 +25,18 @@ class PaymentResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('booking.')
-                    ->required()
-                    ->numeric(),
+
+                // Forms\Components\TextInput::make('booking.')
+                //     ->required()
+                //     ->numeric(),
+                Select::make('booking_id')
+                    ->label('Booking ID')
+                      ->options(fn () => \App\Models\Booking::all()
+                      ->mapWithKeys(fn($c) => [$c->id => (string) ($c->booking_code ?? '—')])
+                      ->toArray())
+                      ->searchable()
+                      ->preload()
+                    ->required(),
                 Forms\Components\TextInput::make('verified_by')
                     ->numeric()
                     ->default(null),

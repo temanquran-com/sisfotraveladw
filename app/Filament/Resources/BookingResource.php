@@ -24,26 +24,64 @@ class BookingResource extends Resource
     {
         return $form
             ->schema([
-                // Forms\Components\TextInput::make('customer_id')
-                //     ->required()
-                //     ->numeric(),
-                Forms\Components\Select::make('customer_id')
+                // Forms\Components\Select::make('customer_id')
+                //     ->label('Customer')
+                //     ->relationship('customer', 'nama_ktp')
+                //     ->searchable()
+                //     ->preload()
+                //     ->default(null),
+                Select::make('customer_id')
                     ->label('Customer')
-                    ->relationship('customer', 'nama_ktp')
+                    ->options(fn () => \App\Models\Customer::all()
+                        ->mapWithKeys(fn($c) => [$c->id => (string) ($c->nama_ktp ?? '—')])
+                        ->toArray())
                     ->searchable()
                     ->preload()
-                    ->default(null),
-                Forms\Components\TextInput::make('paket_umroh_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('jadwal_keberangkatan_id')
-                    ->required()
-                    ->numeric(),
+                    ->required(),
+                // Forms\Components\Select::make('paket_umroh_id')
+                //     ->label('Paket Umroh')
+                //     ->relationship('paketUmroh', 'id')
+                //     ->searchable()
+                //     ->preload()
+                //     ->default(null),
+                Select::make('paket_umroh_id')
+                    ->label('Paket Umroh')
+                    ->options(fn () => \App\Models\PaketUmroh::all()
+                        ->mapWithKeys(fn($c) => [$c->id => (string) ($c->nama_paket ?? '—')])
+                        ->toArray())
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+                // Forms\Components\Select::make('jadwal_keberangkatan_id')
+                //     ->label('Jadwal Keberangkatan')
+                //     ->relationship('jadwalKeberangkatan', 'id')
+                //     ->searchable()
+                //     ->preload()
+                //     ->default(null),
+                Select::make('jadwal_keberangkatan_id')
+                    ->label('Jadwal Keberangkatan')
+                      ->options(fn () => \App\Models\JadwalKeberangkatan::all()
+                      ->mapWithKeys(fn($c) => [$c->id => (string) ($c->tanggal_keberangkatan ?? '—')])
+                      ->toArray())
+                      ->searchable()
+                      ->preload()
+                    ->required(),
                 Forms\Components\TextInput::make('booking_code')
                     ->prefix('ADW-')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('status')
+                // Forms\Components\TextInput::make('status')
+                //     ->required(),
+                // 'waiting_payment','sudah_dp','paid','canceled'
+                Select::make('status')
+                    ->label("Status Booking")
+                    ->options([
+                    'waiting_payment' => 'Menunggu Pembayaran',
+                    'sudah_dp' => 'Sudah DP',
+                    'paid' => 'Lunas',
+                    'canceled' => 'Dibatalkan',
+                    ])
+                    ->default('waiting_payment')
                     ->required(),
                 Forms\Components\TextInput::make('total_price')
                     ->required()
