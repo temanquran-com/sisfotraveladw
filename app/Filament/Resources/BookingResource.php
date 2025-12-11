@@ -73,6 +73,7 @@ class BookingResource extends Resource
                 // Forms\Components\TextInput::make('status')
                 //     ->required(),
                 // 'waiting_payment','sudah_dp','paid','canceled'
+                // 'pending','waiting_payment','partial','paid','canceled'
                 Select::make('status')
                     ->label("Status Booking")
                     ->options([

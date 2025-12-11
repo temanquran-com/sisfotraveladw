@@ -64,7 +64,7 @@ class Booking extends Model
 
         static::creating(function ($booking) {
             if (! $booking->booking_code) {
-                $booking->booking_code = 'BK-'.Str::upper(Str::random(8));
+                $booking->booking_code = 'ADW-'.Str::upper(Str::random(8));
             }
         });
 

@@ -29,7 +29,7 @@ class Payment extends Model
     // Payment → Booking (Wajib)
     public function booking()
     {
-        return $this->belongsTo(Booking::class);
+        return $this->belongsTo(Booking::class, 'booking_id');
     }
 
     // RELATIONS
@@ -41,7 +41,7 @@ class Payment extends Model
     // Payment → User (Optional, jika pembayaran diverifikasi admin)
     public function verifier()
     {
-        return $this->belongsTo(User::class, 'verified_by');
+        return $this->belongsTo(User::class);
     }
 
     /*

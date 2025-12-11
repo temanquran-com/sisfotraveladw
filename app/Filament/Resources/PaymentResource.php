@@ -37,9 +37,7 @@ class PaymentResource extends Resource
                       ->searchable()
                       ->preload()
                     ->required(),
-                Forms\Components\TextInput::make('verified_by')
-                    ->numeric()
-                    ->default(null),
+
                 Forms\Components\TextInput::make('jumlah_bayar')
                     ->required()
                     ->numeric()
@@ -79,6 +77,9 @@ class PaymentResource extends Resource
                     ->maxSize(1024) // Max size in kilobytes (1MB)
                     ->enableOpen() // Allow users to open the image
                     ->default(null), // Default value for the field
+              Forms\Components\TextInput::make('verifier.name')
+                    ->readOnly()
+                    ->default(auth()->id()),
 
             ]);
     }
