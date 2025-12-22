@@ -37,7 +37,7 @@ class Customer extends Model
         'upload_photo',
     ];
 
-    
+
     protected $casts = [
         'tgl_lahir' => 'date',
         'tgl_dikeluarkan_passport' => 'date',

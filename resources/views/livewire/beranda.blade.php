@@ -78,31 +78,32 @@
       <div class="col-lg-4 col-md-6 service-item">
         <a class="text-black" href="service-details.html">
           <div class="block"> <span class="colored-box text-center h3 mb-4">01</span>
-            <h3 class="mb-3 service-title">Digital Marketing</h3>
-            <p class="mb-0 service-description">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
-              eirmod</p>
+            <h3 class="mb-3 service-title">Pasti</h3>
+            <p class="mb-0 service-description">
+                Perizinan sesuai dengan Ketentuan yang Berlaku
+                Kepastian Jadwal Pemberangkatan Kepastian atas Penerbangan yang dilakukan
+                Kepastian Hotel tempat Anda Menginap
+                Kepastian Visa</p>
           </div>
         </a>
       </div>
       <div class="col-lg-4 col-md-6 service-item">
         <a class="text-black" href="service-details.html">
           <div class="block"> <span class="colored-box text-center h3 mb-4">02</span>
-            <h3 class="mb-3 service-title">Web Design</h3>
-            <p class="mb-0 service-description">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
-              eirmod</p>
+            <h3 class="mb-3 service-title">Pembayaran Aman</h3>
+            <p class="mb-0 service-description">ADW Travel hanya menerima transaksi dengan Nomor Rekening resmi atas nama Perusahaan atau Rekening Virtual Account atas nama Jamaah, ini dilakukan supaya Anda tetap merasa aman bertransaksi dengan kami.</p>
           </div>
         </a>
       </div>
       <div class="col-lg-4 col-md-6 service-item">
         <a class="text-black" href="service-details.html">
           <div class="block"> <span class="colored-box text-center h3 mb-4">03</span>
-            <h3 class="mb-3 service-title">SEO</h3>
-            <p class="mb-0 service-description">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
-              eirmod</p>
+            <h3 class="mb-3 service-title">Komunikasi 24/7</h3>
+            <p class="mb-0 service-description">Kami selalu berusaha memberikan informasi terupdate Selama 24Jam Sehari dan 7Hari dalam 1 Minggu</p>
           </div>
         </a>
       </div>
-      <div class="col-lg-4 col-md-6 service-item">
+      {{-- <div class="col-lg-4 col-md-6 service-item">
         <a class="text-black" href="service-details.html">
           <div class="block"> <span class="colored-box text-center h3 mb-4">04</span>
             <h3 class="mb-3 service-title">Logo Design</h3>
@@ -110,8 +111,8 @@
               eirmod</p>
           </div>
         </a>
-      </div>
-      <div class="col-lg-4 col-md-6 service-item">
+      </div> --}}
+      {{-- <div class="col-lg-4 col-md-6 service-item">
         <a class="text-black" href="service-details.html">
           <div class="block"> <span class="colored-box text-center h3 mb-4">05</span>
             <h3 class="mb-3 service-title">Graphic Design</h3>
@@ -119,7 +120,7 @@
               eirmod</p>
           </div>
         </a>
-      </div>
+      </div> --}}
     </div>
   </div>
 </section>

@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\MuthawifResource\Pages;
@@ -74,7 +75,7 @@ class MuthawifResource extends Resource
                     ->label('Photo')
                     ->image() // Ensures only image files can be uploaded
                     ->disk('public') // Store files on the 'public' disk (in `storage/app/public`)
-                    ->directory('tour-leaders') // Store images in the 'tour-leaders' folder inside the 'public' disk
+                    ->directory('muthawif-image') // Store images in the 'tour-leaders' folder inside the 'public' disk
                     ->maxSize(1024) // Max size in kilobytes (1MB)
                     ->enableOpen() // Allow users to open the image
                     ->default(null), // Default value for the field
@@ -85,6 +86,7 @@ class MuthawifResource extends Resource
     {
         return $table
             ->columns([
+               ImageColumn::make('photo_url'),
                Tables\Columns\TextColumn::make('nama_muthawif')
                     ->label("NAMA")
                     ->searchable(),
@@ -120,24 +122,24 @@ class MuthawifResource extends Resource
                     ->searchable(),
                 // Tables\Columns\TextColumn::make('photo_url')
                 //     ->searchable(),
-                Tables\Columns\TextColumn::make('photo_url')
-                    ->label('Foto')
-                    ->icon('heroicon-m-photo')
-                    ->tooltip(function ($record) {
-                        return $record->photo_url !== '-'
-                            ? 'Klik untuk melihat foto'
-                            : 'Foto tidak tersedia';
-                    })
-                    ->url(function ($record) {
-                        return $record->photo_url !== '-'
-                            ? asset('storage/' . $record->photo_url)
-                            : null;
-                    })
-                    ->getStateUsing(function ($record) {
-                        return $record->photo_url !== '-'
-                            ? 'Image'
-                            : '';
-                    }),
+                // Tables\Columns\TextColumn::make('photo_url')
+                //     ->label('Foto')
+                //     ->icon('heroicon-m-photo')
+                //     ->tooltip(function ($record) {
+                //         return $record->photo_url !== '-'
+                //             ? 'Klik untuk melihat foto'
+                //             : 'Foto tidak tersedia';
+                //     })
+                //     ->url(function ($record) {
+                //         return $record->photo_url !== '-'
+                //             ? asset('storage/' . $record->photo_url)
+                //             : null;
+                //     })
+                //     ->getStateUsing(function ($record) {
+                //         return $record->photo_url !== '-'
+                //             ? 'Image'
+                //             : '';
+                //     }),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

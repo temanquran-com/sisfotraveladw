@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\CustomerDocumentResource\RelationManagers\DocumentsRelationManager;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
@@ -15,6 +16,7 @@ use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\CustomerResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use RelationManagers\CustomerDocumentsRelationManager;
 use App\Filament\Resources\CustomerResource\RelationManagers;
 
 
@@ -24,13 +26,22 @@ class CustomerResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-heart';
 
+    
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('user_id')
+                // Forms\Components\Select::make('user_id')
+                //     ->label('Nama Customer')
+                //     ->relationship('user', 'name')
+                //     ->searchable()
+                //     ->preload()
+                //     ->default(null),
+                Select::make('user_id')
                     ->label('Nama Customer')
-                    ->relationship('user', 'name')
+                    ->relationship('user', 'name', function ($query) {
+                        $query->where('role', 'customer');  // Filter users by role 'customer'
+                    })
                     ->searchable()
                     ->preload()
                     ->default(null),
@@ -150,7 +161,7 @@ class CustomerResource extends Resource
                 //     ->maxLength(255)
                 //     ->default(null),
                 FileUpload::make('upload_kk')
-                    ->label('Upload KTP')
+                    ->label('Upload KKK')
                     ->image() // Ensures only image files can be uploaded
                     ->disk('public') // Store files on the 'public' disk (in `storage/app/public`)
                     ->directory('customer-files') // Store images in the 'tour-leaders' folder inside the 'public' disk
@@ -162,7 +173,7 @@ class CustomerResource extends Resource
                 //     ->maxLength(255)
                 //     ->default(null),
                 FileUpload::make('upload_passport')
-                    ->label('Upload KTP')
+                    ->label('Upload Passport')
                     ->image() // Ensures only image files can be uploaded
                     ->disk('public') // Store files on the 'public' disk (in `storage/app/public`)
                     ->directory('customer-files') // Store images in the 'tour-leaders' folder inside the 'public' disk
@@ -174,7 +185,7 @@ class CustomerResource extends Resource
                 //     ->maxLength(255)
                 //     ->default(null),
                 FileUpload::make('upload_photo')
-                    ->label('Upload KTP')
+                    ->label('Upload Photo')
                     ->image() // Ensures only image files can be uploaded
                     ->disk('public') // Store files on the 'public' disk (in `storage/app/public`)
                     ->directory('customer-files') // Store images in the 'tour-leaders' folder inside the 'public' disk
@@ -298,7 +309,7 @@ class CustomerResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            'documents' => DocumentsRelationManager::class,
         ];
     }
 

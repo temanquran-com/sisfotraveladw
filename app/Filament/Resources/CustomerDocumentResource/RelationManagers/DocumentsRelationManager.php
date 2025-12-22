@@ -1,38 +1,32 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\CustomerDocumentResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
-use App\Models\CustomerDocument;
-use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\CustomerDocumentResource\Pages;
-use App\Filament\Resources\CustomerDocumentResource\RelationManagers;
-use App\Filament\Resources\CustomerDocumentResource\RelationManagers\DocumentsRelationManager;
+use Filament\Resources\RelationManagers\RelationManager;
 
-class CustomerDocumentResource extends Resource
+class DocumentsRelationManager extends RelationManager
 {
-    protected static ?string $model = CustomerDocument::class;
+    protected static string $relationship = 'documents';
 
-    protected static ?string $navigationIcon = 'heroicon-o-archive-box-arrow-down';
-
-    public static function form(Form $form): Form
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
-               Select::make('user_id')
+                Select::make('customer_id')
                     ->label('Nama Customer')
-                    ->relationship('user', 'name', function ($query) {
-                        $query->where('role', 'customer');  // Filter users by role 'customer'
+                    ->relationship('customer', 'user.name', function ($query) {
+                        $query->where('role', 'customer'); // Filter by role 'customer'
                     })
                     ->searchable()
                     ->preload()
-                    ->default(null),
+                    ->required(),
                 Forms\Components\TextInput::make('document_type')
                     ->required()
                     ->maxLength(255),
@@ -50,11 +44,12 @@ class CustomerDocumentResource extends Resource
             ]);
     }
 
-    public static function table(Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('customer_id')
             ->columns([
-                Tables\Columns\TextColumn::make('customer.user.name')
+                  Tables\Columns\TextColumn::make('customer.user.name')
                     ->label('Nama Customer')
                     ->sortable()
                     ->searchable(),
@@ -84,29 +79,17 @@ class CustomerDocumentResource extends Resource
             ->filters([
                 //
             ])
+            ->headerActions([
+                Tables\Actions\CreateAction::make(),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            'documents' => DocumentsRelationManager::class,
-        ];
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListCustomerDocuments::route('/'),
-            'create' => Pages\CreateCustomerDocument::route('/create'),
-            'edit' => Pages\EditCustomerDocument::route('/{record}/edit'),
-        ];
     }
 }

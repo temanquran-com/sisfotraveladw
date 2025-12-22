@@ -2,16 +2,18 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PaketUmrohResource\Pages;
-use App\Filament\Resources\PaketUmrohResource\RelationManagers;
-use App\Models\PaketUmroh;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
+use App\Models\PaketUmroh;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\PaketUmrohResource\Pages;
+use App\Filament\Resources\PaketUmrohResource\RelationManagers;
 
 class PaketUmrohResource extends Resource
 {
@@ -25,40 +27,76 @@ class PaketUmrohResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('nama_paket')
                     ->required()
+                    ->columnSpanFull()
                     ->maxLength(255),
                 Forms\Components\Textarea::make('deskripsi')
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('durasi_hari')
+                    ->suffix('Hari')
                     ->required()
                     ->numeric()
                     ->default(0),
                 Forms\Components\TextInput::make('harga_paket')
                     ->required()
+                    ->prefix('Rp.')
                     ->numeric()
                     ->default(0.00),
-                Forms\Components\TextInput::make('hotel_mekah.nama_hotel')
-                    ->tel()
-                    ->numeric()
-                    ->default(null),
-                Forms\Components\TextInput::make('hotel_madinah_id')
-                    ->tel()
-                    ->numeric()
-                    ->default(null),
-                Forms\Components\TextInput::make('maskapai_id')
-                    ->numeric()
-                    ->default(null),
+                // Forms\Components\TextInput::make('hotel_mekah.nama_hotel')
+                //     ->default(null),
+                Select::make('hotel_mekah_id')
+                    ->label('Hotel Mekah')
+                    ->options(fn () => \App\Models\HotelMekah::all()
+                        ->mapWithKeys(fn($c) => [$c->id => (string) ($c->nama_hotel ?? '—')])
+                        ->toArray())
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+                // Forms\Components\TextInput::make('hotel_madinah_id')
+                //     ->default(null),
+                Select::make('hotel_madinah_id')
+                    ->label('Hotel Madinah')
+                    ->options(fn () => \App\Models\HotelMadinah::all()
+                        ->mapWithKeys(fn($c) => [$c->id => (string) ($c->nama_hotel ?? '—')])
+                        ->toArray())
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+                // Forms\Components\TextInput::make('maskapai_id')
+                //     ->numeric()
+                //     ->default(null),
+
                 Forms\Components\DatePicker::make('tanggal_start'),
                 Forms\Components\DatePicker::make('tanggal_end'),
+                Select::make('maskapai_id')
+                    ->label('Maskapai')
+                    ->options(fn () => \App\Models\Maskapai::all()
+                        ->mapWithKeys(fn($c) => [$c->id => (string) ($c->nama_maskapai ?? '—')])
+                        ->toArray())
+                    ->searchable()
+                    ->preload()
+                    ->required(),
                 Forms\Components\Textarea::make('include')
+                    ->default('Visa Umroh, Tour Leader Berpengalaman, Free Sertifikat, Muthawif Tersertifikasi, Perlengkapan Umroh, Tiket Pesawat International/Domestik, Free Air Zam-Zam, Free Doc Photo Video, Hotel-Bus Full AC & Makan 3x')
                     ->columnSpanFull(),
                 Forms\Components\Textarea::make('exclude')
+                ->default('Passport, Vaksin Meningitis, Keperluan Pribadi')
                     ->columnSpanFull(),
                 Forms\Components\Textarea::make('syarat')
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('thumbnail')
-                    ->maxLength(255)
-                    ->default(null),
+                // Forms\Components\TextInput::make('thumbnail')
+                //     ->maxLength(255)
+                //     ->default(null),
+                FileUpload::make('thumbnail')
+                    ->label('Gambar Thumbnail')
+                    ->image() // Ensures only image files can be uploaded
+                    ->disk('public') // Store files on the 'public' disk (in `storage/app/public`)
+                    ->directory('thumbnail-files') // Store images in the 'tour-leaders' folder inside the 'public' disk
+                    ->maxSize(1024) // Max size in kilobytes (1MB)
+                    ->enableOpen() // Allow users to open the image
+                    ->columnSpanFull()
+                    ->default(null), // Default value for the field
                 Forms\Components\Toggle::make('is_active')
+                    ->default(true)
                     ->required(),
             ]);
     }

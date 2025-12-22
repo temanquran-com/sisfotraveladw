@@ -28,4 +28,8 @@ class CustomerDocument extends Model
     {
         return $this->belongsTo(Customer::class);
     }
+     public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

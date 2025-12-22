@@ -14,7 +14,7 @@ class PaketUmroh extends Model
         'deskripsi',
         'durasi_hari',
         'harga_paket',
-        'hotel_mekkah_id',
+        'hotel_mekah_id',
         'hotel_madinah_id',
         'maskapai_id',
         'tanggal_start',
