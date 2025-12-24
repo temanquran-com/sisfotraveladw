@@ -9,6 +9,10 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\PaymentResource\Pages;
@@ -19,6 +23,8 @@ class PaymentResource extends Resource
 {
     protected static ?string $model = Payment::class;
 
+    protected static ?string $navigationGroup = "Kelola Pembayaran";
+
     protected static ?string $navigationIcon = 'heroicon-o-credit-card';
 
     public static function form(Form $form): Form
@@ -26,49 +32,92 @@ class PaymentResource extends Resource
         return $form
             ->schema([
 
-                // Forms\Components\TextInput::make('booking.')
-                //     ->required()
-                //     ->numeric(),
-                Select::make('booking_id')
-                    ->label('Booking ID')
-                      ->options(fn () => \App\Models\Booking::all()
-                      ->mapWithKeys(fn($c) => [$c->id => (string) ($c->booking_code ?? '—')])
-                      ->toArray())
-                      ->searchable()
-                      ->preload()
-                    ->required(),
+                Section::make([
+                    Select::make('booking_id')
+                        ->label('Booking ID')
+                        ->relationship('booking', 'booking_code')
+                        ->preload()
+                        ->reactive()
+                        ->columnSpanFull()
+                        ->afterStateUpdated(function ($state, callable $set) {
+                            $paket = \App\Models\Booking::find($state);
+                            if ($paket) {
+                                $set('total_price',  (float) $paket->total_price);
+                                $set('sisa_tagihan', (float) $paket->sisa_tagihan);
+                                // $set('quota', $paket->kuota);
+                                // $set('sisa_quota', $paket->kuota);
+                                // $set('total_price', (float) $paket->harga_paket);
+                            } else {
+                                $set('total_price', null);
+                                $set('sisa_tagihan', null);
+                                // $set('quota', null);
+                                // $set('sisa_quota', null);
+                                // $set('total_price', null);
+                            }
+                        }),
 
-                Forms\Components\TextInput::make('jumlah_bayar')
-                    ->required()
-                    ->numeric()
-                    ->default(0.00),
-                Forms\Components\DatePicker::make('tanggal_bayar')
-                    ->required(),
-                // Forms\Components\TextInput::make('metode_pembayaran')
-                //     ->required(),
-                Select::make('metode_pembayaran')
-                    ->label("Metode Pembayaran")
-                    ->options([
-                    'cash' => 'Cash',
-                    'transfer' => 'Transfer',
-                    'kartu_kredit' => 'Kartu Kredit',
-                    ])
-                    ->default('cash')
-                    ->required(),
-                // Forms\Components\TextInput::make('status')
-                //     ->required(),
-                Select::make('status')
-                    ->label("Status")
-                    ->options([
-                    'verified' => 'Verified',
-                    'pending' => 'Pending',
-                    'rejected' => 'rejected',
-                    ])
-                    ->default('verified')
-                    ->required(),
-                // Forms\Components\TextInput::make('bukti_bayar')
-                //     ->maxLength(255)
-                //     ->default(null),
+                    TextInput::make('total_price')
+                        ->label('Harga Paket')
+                        ->disabled() // Disable editing
+                        ->prefix('Rp.')
+                        ->dehydrated(false), // Don't hydrate this field
+                    TextInput::make('sisa_tagihan')
+                        ->label('Sisa Tagihan')
+                        ->disabled() // Disable editing
+                        ->prefix('Rp.')
+                        ->dehydrated(false), // Don't hydrate this field
+                ])->columns(2),
+
+                Section::make([
+                    // TextInput::make('jumlah_bayar')
+                    // ->prefix('Rp.')
+                    // ->required()
+                    // ->numeric()
+                    // ->default(0.00),
+                    TextInput::make('jumlah_bayar')
+                        ->numeric()
+                        ->required()
+                        ->prefix('Rp.')
+                        ->rule(function (callable $get) {
+                            return function ($attribute, $value, $fail) use ($get) {
+                                $booking = \App\Models\Booking::find($get('booking_id'));
+                                if ($booking && $value > $booking->sisa_tagihan && $booking->sisa_tagihan > 0) {
+                                    $fail('Jumlah bayar melebihi sisa tagihan.');
+                                }
+                            };
+                        })
+                        ->columnSpanFull(),
+
+                    Section::make([
+                        DatePicker::make('tanggal_bayar')
+                            ->label('Tanggal Bayar')
+                            ->default(now())
+                            ->displayFormat('l, d M Y')
+                            ->required(),
+
+                        Select::make('metode_pembayaran')
+                            ->label("Metode Pembayaran")
+                            ->options([
+                                'cash' => 'Cash',
+                                'transfer' => 'Transfer',
+                                'kartu_kredit' => 'Kartu Kredit',
+                            ])
+                            ->default('cash')
+                            ->required(),
+
+                        // Select::make('status')
+                        //     ->label("Status")
+                        //     ->options([
+                        //         'verified' => 'Verified',
+                        //         'pending' => 'Pending',
+                        //         'rejected' => 'rejected',
+                        //     ])
+                        //     ->default('verified')
+                        //     ->required(),
+                    ])->columns(2),
+
+                ])->columns(2),
+
                 FileUpload::make('bukti_bayar')
                     ->label('Bukti Bayar')
                     ->image() // Ensures only image files can be uploaded
@@ -77,9 +126,6 @@ class PaymentResource extends Resource
                     ->maxSize(1024) // Max size in kilobytes (1MB)
                     ->enableOpen() // Allow users to open the image
                     ->default(null), // Default value for the field
-              Forms\Components\TextInput::make('verifier.name')
-                    ->readOnly()
-                    ->default(auth()->id()),
 
             ]);
     }
@@ -88,15 +134,11 @@ class PaymentResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('booking_id')
+                Tables\Columns\TextColumn::make('booking.booking_code')
+                    ->label('Booking Code')
                     ->numeric()
                     ->sortable(),
-                // Tables\Columns\TextColumn::make('verifier')
-                //     ->sortable(),
-                Tables\Columns\TextColumn::make('verifier.name')
-                    ->label('Verifier')
-                    ->searchable()
-                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('jumlah_bayar')
                     ->numeric()
                     ->sortable(),
@@ -104,19 +146,16 @@ class PaymentResource extends Resource
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('metode_pembayaran'),
-                // Tables\Columns\TextColumn::make('status'),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->alignCenter()
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'verified' => 'success',
-                        'pending' => 'warning',
+                        'unverified' => 'warning',
                         'rejected' => 'danger',
                     }),
-                // Tables\Columns\TextColumn::make('bukti_bayar')
-                //     ->searchable(),
-                Tables\Columns\TextColumn::make('bukti_bayar')
+                TextColumn::make('bukti_bayar')
                     ->label('Foto')
                     ->icon('heroicon-m-photo')
                     ->tooltip(function ($record) {
@@ -135,11 +174,17 @@ class PaymentResource extends Resource
                             : '';
                     }),
 
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('verifier.name')
+                    ->label('Verifier')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

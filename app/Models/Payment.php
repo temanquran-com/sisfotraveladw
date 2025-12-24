@@ -19,6 +19,7 @@ class Payment extends Model
         'bukti_bayar',
         'status',
         'verified_by',
+        'created_by',
     ];
 
     protected $casts = [
@@ -42,6 +43,11 @@ class Payment extends Model
     public function verifier()
     {
         return $this->belongsTo(User::class);
+    }
+
+      public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     /*

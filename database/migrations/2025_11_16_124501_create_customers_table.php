@@ -36,8 +36,6 @@ return new class extends Migration
             $table->string('status_pernikahan')->nullable();
             $table->string('jenis_pendidikan')->nullable();
             $table->string('jenis_pekerjaan')->nullable();
-
-            $table->string('metode_pembayaran')->nullable();
             $table->string('no_hp')->nullable();
 
             $table->string('upload_ktp')->nullable();

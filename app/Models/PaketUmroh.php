@@ -13,6 +13,7 @@ class PaketUmroh extends Model
         'nama_paket',
         'deskripsi',
         'durasi_hari',
+        'kuota',
         'harga_paket',
         'hotel_mekah_id',
         'hotel_madinah_id',
@@ -60,5 +61,18 @@ class PaketUmroh extends Model
     public function getFormattedPriceAttribute()
     {
         return number_format($this->price, 0, ',', '.');
+    }
+
+    public function getUsedQuotaAttribute(): int
+    {
+        return $this->bookings()
+            ->whereIn('status', ['partial', 'paid'])
+            ->where('quota_reduced', true)
+            ->count();
+    }
+
+    public function getRemainingQuotaAttribute(): int
+    {
+        return max(0, $this->kuota - $this->used_quota);
     }
 }

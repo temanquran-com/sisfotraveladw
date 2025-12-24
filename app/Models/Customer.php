@@ -29,7 +29,6 @@ class Customer extends Model
         'status_pernikahan',
         'jenis_pendidikan',
         'jenis_pekerjaan',
-        'metode_pembayaran',
         'no_hp',
         'upload_ktp',
         'upload_kk',

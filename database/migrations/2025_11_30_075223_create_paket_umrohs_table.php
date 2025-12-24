@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('deskripsi')->nullable();
 
             $table->integer('durasi_hari')->default(0);
+            $table->integer('kuota')->default(0);
             $table->decimal('harga_paket', 15, 2)->default(0);
 
             // RELATIONS

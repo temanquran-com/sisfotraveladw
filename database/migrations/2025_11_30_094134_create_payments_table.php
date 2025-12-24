@@ -44,6 +44,11 @@ return new class extends Migration
                 'verified',     // sudah diverifikasi admin
                 'rejected',     // ditolak
             ])->default('pending');
+            // USER CREATOR (Admin / Staff)
+            $table->foreignId('created_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
         });

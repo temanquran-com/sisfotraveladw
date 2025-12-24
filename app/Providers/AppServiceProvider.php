@@ -11,6 +11,7 @@ use Illuminate\Support\ServiceProvider;
 use Filament\Support\Facades\FilamentView;
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use Illuminate\Support\Facades\Blade;
+use Carbon\Carbon;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -52,6 +53,9 @@ class AppServiceProvider extends ServiceProvider
         //             };
         //     });
 
+        Carbon::setLocale(config('app.locale'));
+        Carbon::setLocale('id');
+
                 // Add a link above the login form
         FilamentView::registerRenderHook(
             PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
@@ -63,5 +67,6 @@ class AppServiceProvider extends ServiceProvider
             PanelsRenderHook::AUTH_REGISTER_FORM_AFTER,
             fn (): string => Blade::render('<x-filament::link href="' . config('app.url') . '" size="sm" icon="heroicon-o-arrow-left">Halaman Landing Page</x-filament::link>')
         );
+
     }
 }

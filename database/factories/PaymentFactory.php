@@ -43,6 +43,7 @@ class PaymentFactory extends Factory
             ]),
 
             'status' => $this->faker->randomElement(['pending', 'verified', 'rejected']),
+            'created_by' => User::inRandomOrder()->first()->id ?? User::factory(),
 
         ];
     }

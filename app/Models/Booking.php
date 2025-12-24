@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
 
 class Booking extends Model
 {
@@ -18,12 +18,14 @@ class Booking extends Model
         'booking_code',
         'status',
         'total_price',
+        'sisa_tagihan',
         'metode_pembayaran',
         'created_by',
     ];
 
     protected $casts = [
         'total_price' => 'decimal:2',
+        'sisa_tagihan' => 'decimal:2',
     ];
 
     // RELATIONS
@@ -99,5 +101,11 @@ class Booking extends Model
     public function getIsFullyPaidAttribute()
     {
         return $this->payments()->sum('amount') >= $this->total_price;
+    }
+
+    public function getTanggalFormattedAttribute(): string
+    {
+        return Carbon::parse($this->tanggal_keberangkatan)
+            ->translatedFormat('l, d M Y');
     }
 }

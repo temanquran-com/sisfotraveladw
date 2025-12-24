@@ -14,10 +14,21 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\CustomerDocumentResource\Pages;
 use App\Filament\Resources\CustomerDocumentResource\RelationManagers;
 use App\Filament\Resources\CustomerDocumentResource\RelationManagers\DocumentsRelationManager;
+use Filament\Facades\Filament;
 
 class CustomerDocumentResource extends Resource
 {
     protected static ?string $model = CustomerDocument::class;
+
+    // protected static ?string $navigationGroup = "Kelola Customer";
+
+    // protected static ?int $navigationSort = 2;
+
+    //default hide
+    public static function shouldRegisterNavigation(): bool
+    {
+        return Filament::getCurrentPanel()?->getId() === 'adminXX';
+    }
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box-arrow-down';
 

@@ -42,8 +42,6 @@ class CustomerFactory extends Factory
             'status_pernikahan' => 'Belum Menikah',
             'jenis_pendidikan' => 'S1',
             'jenis_pekerjaan' => 'Karyawan Swasta',
-
-            'metode_pembayaran' => 'cicilan',
             'no_hp' => $this->faker->phoneNumber(),
 
             'upload_ktp' => null,

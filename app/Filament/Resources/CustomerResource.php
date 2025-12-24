@@ -18,20 +18,24 @@ use App\Filament\Resources\CustomerResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use RelationManagers\CustomerDocumentsRelationManager;
 use App\Filament\Resources\CustomerResource\RelationManagers;
-
+use Filament\Forms\Components\Section;
 
 class CustomerResource extends Resource
 {
     protected static ?string $model = Customer::class;
 
+    protected static ?string $navigationGroup = "Kelola Customer";
+
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationIcon = 'heroicon-o-heart';
 
-    
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                // Forms\Components\Select::make('user_id')
+              Section::make([
+                  // Forms\Components\Select::make('user_id')
                 //     ->label('Nama Customer')
                 //     ->relationship('user', 'name')
                 //     ->searchable()
@@ -137,9 +141,7 @@ class CustomerResource extends Resource
                 Forms\Components\TextInput::make('jenis_pekerjaan')
                     ->maxLength(255)
                     ->default(null),
-                Forms\Components\TextInput::make('metode_pembayaran')
-                    ->maxLength(255)
-                    ->default(null),
+
                 Forms\Components\TextInput::make('no_hp')
                     ->prefix('+62')
                     ->label('No Telp/HP')
@@ -193,6 +195,7 @@ class CustomerResource extends Resource
                     ->enableOpen() // Allow users to open the image
                     ->columnSpanFull()
                     ->default(null), // Default value for the field
+              ])->columns(2)
 
             ]);
     }
@@ -211,22 +214,31 @@ class CustomerResource extends Resource
                 // Tables\Columns\TextColumn::make('no_kk')
                 //     ->label('NO KK')
                 //     ->searchable(),
-                Tables\Columns\TextColumn::make('no_KK_and_no_KTP')
-                    ->label('Data KK & KTP')
-                    ->columnSpan(3)
-                    ->alignLeft()
-                    ->html(true)
-                  ->getStateUsing(function ($record) {
-                        $data1 = $record->no_ktp;  // Fetch the no_ktp value
-                        $data2 = $record->no_kk;   // Fetch the no_kk value
+                Tables\Columns\TextColumn::make('no_hp')
+                    ->label('No HP')
+                    ->alignCenter()
+                    ->searchable(),
 
-                        // Concatenate with <br> for line break between the two
-                        return 'KTP  : ' . $data1 . '<br>' . 'KK    : ' . $data2;
-                    }),
+
+
+
+
+
+                // Tables\Columns\TextColumn::make('no_KK_and_no_KTP')
+                //     ->label('Data KK & KTP')
+                //     ->columnSpan(3)
+                //     ->alignLeft()
+                //     ->html(true)
+                //     ->getStateUsing(function ($record) {
+                //         $data1 = $record->no_ktp;  // Fetch the no_ktp value
+                //         $data2 = $record->no_kk;   // Fetch the no_kk value
+                //         // Concatenate with <br> for line break between the two
+                //         return 'KTP  : ' . $data1 . '<br>' . 'KK    : ' . $data2;
+                //     }),
                 Tables\Columns\TextColumn::make('no_passport')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nama_ayah')
-                    ->searchable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('kota_passport')
                     ->searchable(),
                 // Tables\Columns\TextColumn::make('tgl_dikeluarkan_passport')
@@ -270,19 +282,16 @@ class CustomerResource extends Resource
                 Tables\Columns\TextColumn::make('jenis_pendidikan')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('jenis_pekerjaan')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('metode_pembayaran')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('no_hp')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('upload_ktp')
-                    ->searchable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('upload_kk')
-                    ->searchable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('upload_passport')
-                    ->searchable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('upload_photo')
-                    ->searchable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

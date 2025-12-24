@@ -2,22 +2,30 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\JadwalKeberangkatanResource\Pages;
-use App\Filament\Resources\JadwalKeberangkatanResource\RelationManagers;
-use App\Models\JadwalKeberangkatan;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
+use App\Models\PaketUmroh;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use App\Models\JadwalKeberangkatan;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\TimePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\TimePicker;
-use Filament\Forms\Components\Select;
+use App\Filament\Resources\JadwalKeberangkatanResource\Pages;
+use App\Filament\Resources\JadwalKeberangkatanResource\RelationManagers;
 
 class JadwalKeberangkatanResource extends Resource
 {
     protected static ?string $model = JadwalKeberangkatan::class;
+
+    protected static ?string $navigationGroup = "Kelola Paket";
+
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationIcon = 'heroicon-o-calendar';
 
@@ -25,94 +33,186 @@ class JadwalKeberangkatanResource extends Resource
     {
         return $form
             ->schema([
-                // Forms\Components\TextInput::make('paket_umroh_id')
-                //     ->required()
-                //     ->numeric(),
-                Forms\Components\Select::make('paket_umroh_id')
-                    ->label('Paket')
-                    ->relationship('paketUmroh', 'nama_paket')
-                    ->searchable()
-                    ->preload()
-                    ->default(null),
-                Forms\Components\Select::make('tour_leader_id')
-                    ->label('Tour Leader')
-                    ->relationship('tourLeader', 'nama_tour_leader')
-                    ->searchable()
-                    ->preload()
-                    ->default(null),
-                // Forms\Components\TextInput::make('muthawif_id')
-                //     ->numeric()
-                //     ->default(null),
-                // Forms\Components\TextInput::make('muthawif_name')
-                //     ->maxLength(255)
-                //     ->default(null),
-                Forms\Components\Select::make('muthawif_id')
-                    ->label('Muthawif')
-                    ->relationship('muthawif', 'nama_muthawif')
-                    ->searchable()
-                    ->preload()
-                    ->default(null),
-                // Forms\Components\TextInput::make('maskapai_id')
-                //     ->numeric()
-                //     ->default(null),
-                // Forms\Components\TextInput::make('maskapai_name')
-                //     ->maxLength(255)
-                //     ->default(null),
-                Forms\Components\Select::make('maskapai_id')
-                    ->label('Maskapai')
-                    ->relationship('maskapai', 'nama_maskapai')
-                    ->searchable()
-                    ->preload()
-                    ->default(null),
-                // Forms\Components\TextInput::make('bandara_id')
-                //     ->numeric()
-                //     ->default(null),
-                // Forms\Components\TextInput::make('bandara_name')
-                //     ->maxLength(255)
-                //     ->default(null),
 
-                Forms\Components\Select::make('bandara_id')
-                    ->label('Bandara')
-                    ->relationship('bandara', 'nama_bandara')
-                    ->searchable()
-                    ->preload()
-                    ->default(null),
-                Forms\Components\DatePicker::make('tanggal_keberangkatan')
-                    ->required(),
-                // Forms\Components\TextInput::make('jam_keberangkatan'),
-                TimePicker::make('jam_keberangkatan')
-                    ->datalist([
-                        '09:00',
-                        '09:30',
-                        '10:00',
-                        '10:30',
-                        '11:00',
-                        '11:30',
-                        '12:00',
+                Section::make([
+                    Section::make([
+                        // Select::make('paket_umroh_id')
+                        //     ->label('Pilih Paket Umroh')
+                        //     ->relationship('paketUmroh', 'nama_paket')
+                        //     ->searchable()
+                        //     ->preload()
+                        //     ->reactive()
+                        //     ->default(null),
+
+                        Select::make('paket_umroh_id')
+                            ->label('Pilih Paket Umroh')
+                            ->relationship('paketUmroh', 'nama_paket')
+                            ->preload()
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $paket = \App\Models\PaketUmroh::find($state);
+
+                                if ($paket) {
+                                    $set('tanggal_keberangkatan', $paket->tanggal_start);
+                                    $set('tanggal_kembali', $paket->tanggal_end);
+                                    $set('quota', $paket->kuota);
+                                    $set('sisa_quota', $paket->kuota);
+                                } else {
+                                    $set('tanggal_keberangkatan', null);
+                                    $set('tanggal_kembali', null);
+                                    $set('quota', null);
+                                    $set('sisa_quota', null);
+                                }
+                            })
+
+                        // Select::make('paket_umroh_id')
+                        //     ->label('Pilih Paket Umroh')
+                        //     ->options(PaketUmroh::query()->pluck('nama_paket', 'id'))
+                        //     ->live() // Make it reactive
+                            // ->afterStateUpdated(function ($state, callable $set) {
+                            //     // Sync package details when a new paket_id is selected
+                            //     $this->syncPaketDetails($state, $set);
+                            // }),
+                            // ->afterStateUpdated(fn ($state, $set) => self::syncPaketDetails($state, $set))
+
+
+                        // Displaying Paket Nama and its details
+                        // TextInput::make('nama_paket')
+                        //     ->label('Nama Paket')
+                        //     ->disabled() // Disable editing
+                        //     ->dehydrated(false), // Don't hydrate this field
                     ]),
-                Forms\Components\DatePicker::make('tanggal_kembali'),
-                Forms\Components\TextInput::make('quota')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\TextInput::make('sisa_quota')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                // Forms\Components\TextInput::make('status')
-                //     ->required(),
+
+                    Section::make([
+                        Forms\Components\Select::make('tour_leader_id')
+                            ->label('Tour Leader')
+                            ->relationship('tourLeader', 'nama_tour_leader')
+                            ->searchable()
+                            ->preload()
+                            ->default(null),
+                        Forms\Components\Select::make('muthawif_id')
+                            ->label('Muthawif')
+                            ->relationship('muthawif', 'nama_muthawif')
+                            ->searchable()
+                            ->preload()
+                            ->default(null),
+                    ])
+                    // ->icon('heroicon-o-user')
+                    ->columns(2),
+
+
+                    Section::make([
+                        Forms\Components\Select::make('maskapai_id')
+                            ->label('Maskapai')
+                            ->relationship('maskapai', 'nama_maskapai')
+                            ->searchable()
+                            ->preload()
+                            ->default(null),
+
+                        Forms\Components\Select::make('bandara_id')
+                            ->label('Bandara')
+                            ->relationship('bandara', 'nama_bandara')
+                            ->searchable()
+                            ->preload()
+                            ->default(null),
+                    ])->columns(2),
+
+                    Section::make([
+                         DatePicker::make('tanggal_keberangkatan')
+                            ->required()
+                            ->label('Tanggal Keberangkatan')
+                             ->disabled(fn (callable $get) => filled($get('paket_umroh_id')))
+                             ->dehydrated(),
+
+                        TimePicker::make('jam_keberangkatan')
+                            ->required()
+                            ->datalist([
+                                '08:00',
+                                '09:00',
+                                '10:00',
+                                '10:30',
+                                '11:00',
+                                '11:30',
+                                '12:00',
+                                '13:00',
+                                '14:00',
+                                '15:00',
+                                '16:00',
+                                '17:00',
+                                '18:00',
+                                '19:00',
+                                '20:00',
+                                '21:00',
+                            ]),
+                        DatePicker::make('tanggal_kembali')
+                             ->label('Tanggal Kembali')
+                             ->required()
+                            ->disabled(fn (callable $get) => filled($get('paket_umroh_id')))
+                            ->dehydrated(),
+                    ])->columns(2),
+
+                    Section::make([
+                         TextInput::make('quota')
+                            ->required()
+                            ->numeric()
+                            ->disabled(fn (callable $get) => filled($get('paket_umroh_id')))
+                            ->dehydrated(),
+                        TextInput::make('sisa_quota')
+                            ->required()
+                            ->numeric()
+                            ->disabled(fn (callable $get) => filled($get('paket_umroh_id')))
+                            ->dehydrated(),
+                    ])->columns(2),
+
+
+
                 Select::make('status')
                     ->label("Status")
                     ->options([
-                    'draft' => 'Draft',
-                    'open' => 'Open',
-                    'closed' => 'Closed',
-                    'full' => 'Full',
-                    'canceled' => 'Canceled',
+                        'draft' => 'Draft',
+                        'open' => 'Open',
+                        'closed' => 'Closed',
+                        'full' => 'Full',
+                        'canceled' => 'Canceled',
                     ])
                     ->default('draft')
                     ->required(),
-            ]);
+
+
+                ])
+                ->icon('heroicon-o-calendar-days')
+                ->columns(2)
+
+
+                ]);
+    }
+
+
+
+    /**
+     * Synchronize Paket Details with the selected PaketUmroh.
+     *
+     * @param int|null $paketId
+     * @param callable $set
+     * @return void
+     */
+
+
+    protected static function syncPaketDetails($paketId, callable $set)
+    {
+        // Fetch PaketUmroh details based on selected paket_id
+        $paket = PaketUmroh::find($paketId);
+
+        // Set the related fields if paket is found
+        if ($paket) {
+            $set('nama_paket', $paket->nama_paket);
+            $set('paket_details.harga_paket', $paket->harga_paket);
+            $set('paket_details.durasi_hari', $paket->durasi_hari);
+            $set('paket_details.include', $paket->include);
+            $set('paket_details.exclude', $paket->exclude);
+            $set('paket_details.tanggal_start', $paket->tanggal_start);
+            $set('paket_details.tanggal_end', $paket->tanggal_end);
+        }
     }
 
     public static function table(Table $table): Table

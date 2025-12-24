@@ -27,6 +27,7 @@
     <!-- # Main Style Sheet -->
     <link rel="stylesheet" href="{{ asset('frontend/css/style.css') }}">
 
+
     @livewireStyles
 
 </head>
@@ -48,6 +49,7 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav m-auto mb-2 mb-lg-0">
                         <li class="nav-item"> <a class="nav-link" href="{{ route('beranda') }}">Beranda</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="{{ route('paketumroh') }}">Paket Umroh</a></li>
                         <li class="nav-item "> <a class="nav-link" href="{{ route('testimoni') }}">Testimoni</a></li>
                         <li class="nav-item "> <a class="nav-link" href="{{ route('gallery') }}">Gallery</a></li>
                     </ul>
@@ -65,8 +67,8 @@
                             <a class="nav-link dropdown-toggle" href="#" id="btn-warning" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false">Hi, {{ Auth::user()->name }}</a>
                             <div class="dropdown-menu" aria-labelledby="btn-warning">
-                                <a class="dropdown-item" href="{{ route('testimoni') }}">Testimoni</a>
-                                <a class="dropdown-item" href="{{ route('gallery') }}">Gallery</a>
+                                {{-- <a class="dropdown-item" href="{{ route('testimoni') }}">Testimoni</a> --}}
+                                {{-- <a class="dropdown-item" href="{{ route('gallery') }}">Gallery</a> --}}
                                 <a class="dropdown-item" href="{{ route('logout') }}">Keluar</a>
 
                                 {{-- <form action="{{route('User.logout')}}" method="post" class="inline">
@@ -202,6 +204,15 @@
         <!-- # JS Plugins -->
         <script src="{{ asset('frontend/plugins/jquery/jquery.min.js') }}"></script>
         <script src="{{ asset('frontend/plugins/bootstrap/bootstrap.min.js') }}"></script>
+        {{-- hover zoom effect --}}
+        <script src="https://cdn.rawgit.com/elevateweb/elevatezoom/master/jquery.elevatezoom.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <script>
+        $(document).ready(function() {
+            $('.card-img img').elevateZoom();  // Initialize the zoom effect
+        });
+        </script>
 
         <!-- Main Script -->
         <script src="{{ asset('frontend/js/script.js') }}"></script>

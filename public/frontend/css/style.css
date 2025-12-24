@@ -45,6 +45,16 @@
   box-sizing: border-box;
 }
 
+/* Add zoom effect when hovering over the image */
+.card-img img {
+    transition: transform 0.3s ease;  /* Smooth zoom transition */
+}
+
+.card-img:hover img {
+    transform: scale(1.2); /* Zoom in effect */
+    object-fit: cover; /* Ensure the image covers the container */
+}
+
 @media (prefers-reduced-motion: no-preference) {
   :root {
     scroll-behavior: smooth;

@@ -29,15 +29,22 @@ class StaffPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Blue,
             ])
-            ->discoverResources(in: app_path('Filament/Staff/Resources'), for: 'App\\Filament\\Staff\\Resources')
-            ->discoverPages(in: app_path('Filament/Staff/Pages'), for: 'App\\Filament\\Staff\\Pages')
+            ->discoverResources(
+                in: app_path('Filament/Staff/Resources'),
+                for: 'App\\Filament\\Staff\\Resources')
+            ->discoverPages(
+                in: app_path('Filament/Staff/Pages'),
+                for: 'App\\Filament\\Staff\\Pages')
+             ->resources([
+                // Staff\Resources\CustomerResource::class,
+            ])
             ->pages([
                 Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Staff/Widgets'), for: 'App\\Filament\\Staff\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                // Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

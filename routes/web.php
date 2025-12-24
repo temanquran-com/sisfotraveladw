@@ -6,6 +6,7 @@ use App\Livewire\Beranda;
 use App\Livewire\Gallery;
 use App\Models\PaketSaya;
 use App\Livewire\HomePage;
+use App\Livewire\PaketList;
 use App\Livewire\Testimoni;
 use Illuminate\Support\Facades\Route;
 use Filament\Http\Controllers\Auth\LogoutController;
@@ -34,14 +35,15 @@ Route::get('/login', function () {
 Route::get('/', Beranda::class)->name('beranda');
 Route::get('/testimoni', Testimoni::class)->name('testimoni');
 Route::get('/gallery', Gallery::class)->name('gallery');
+Route::get('/paket-list', PaketList::class)->name('paketumroh');
 
-Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer.')->group(function () {
-    Route::get('/paket-saya', [PaketSaya::class, 'index'])->name('paket-saya.index');
-    Route::get('/booking/{paketSayaId}', [Booking::class, 'create'])->name('booking.create');
-    Route::post('/booking/{paketSayaId}', [Booking::class, 'store'])->name('booking.store');
-    Route::get('/payment/{bookingId}', [Payment::class, 'create'])->name('payment.create');
-    Route::post('/payment/{bookingId}', [Payment::class, 'store'])->name('payment.store');
-    Route::get('/jadwal/{bookingId}', [Booking::class, 'showJadwal'])->name('jadwal.show');
-});
+// Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer.')->group(function () {
+//     Route::get('/paket-saya', [PaketSaya::class, 'index'])->name('paket-saya.index');
+//     Route::get('/booking/{paketSayaId}', [Booking::class, 'create'])->name('booking.create');
+//     Route::post('/booking/{paketSayaId}', [Booking::class, 'store'])->name('booking.store');
+//     Route::get('/payment/{bookingId}', [Payment::class, 'create'])->name('payment.create');
+//     Route::post('/payment/{bookingId}', [Payment::class, 'store'])->name('payment.store');
+//     Route::get('/jadwal/{bookingId}', [Booking::class, 'showJadwal'])->name('jadwal.show');
+// });
 
 Route::get('/logout', LogoutController::class)->name('logout');

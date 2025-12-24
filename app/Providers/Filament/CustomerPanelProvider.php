@@ -46,8 +46,12 @@ class CustomerPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Orange,
             ])
-            ->discoverResources(in: app_path('Filament/Customer/Resources'), for: 'App\\Filament\\Customer\\Resources')
-            ->discoverPages(in: app_path('Filament/Customer/Pages'), for: 'App\\Filament\\Customer\\Pages')
+            ->discoverResources(
+                in: app_path('Filament/Customer/Resources'),
+                for: 'App\\Filament\\Customer\\Resources')
+            ->discoverPages(
+                in: app_path('Filament/Customer/Pages'),
+                for: 'App\\Filament\\Customer\\Pages')
             ->pages([
                 Pages\Dashboard::class,
             ])

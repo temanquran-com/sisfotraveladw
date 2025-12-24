@@ -27,6 +27,7 @@ class PaketUmrohFactory extends Factory
             'nama_paket' => 'Paket Umroh ' . $this->faker->word(),
             'deskripsi' => $this->faker->paragraph(),
             'durasi_hari' => $this->faker->numberBetween(9, 15),
+            'durasi_hari' => $this->faker->numberBetween(15, 25),
             'harga_paket' => $this->faker->randomElement([
                 24000000, 27000000, 36000000, 46000000, 54000000,
             ]),

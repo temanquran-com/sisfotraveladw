@@ -8,10 +8,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Filament\Panel;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -26,6 +28,7 @@ class User extends Authenticatable
         'role',
     ];
 
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -35,6 +38,16 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+
+    // protected static function booted(): void
+    // {
+    //     static::created(function (User $user) {
+    //         if (! $user->roles()->exists()) {
+    //             $user->assignRole('customer');
+    //         }
+    //     });
+    // }
 
     /**
      * The attributes that should be cast.
@@ -64,7 +77,7 @@ class User extends Authenticatable
     // HELPERS
     public function isAdmin()
     {
-        return $this->role === 'admin';
+        return $this->role === 'administrator';
     }
 
     public function isStaff()
@@ -77,10 +90,35 @@ class User extends Authenticatable
         return $this->role === 'customer';
     }
 
-    protected static function booted(): void
+    // public function roles()
+    // {
+    //     return $this->belongsToMany(Role::class, 'model_has_roles', 'model_id', 'role_id');
+    // }
+
+    // protected static function booted(): void
+    // {
+    //     static::creating(function (User $user) {
+    //         $user->role = 'customer';
+    //     });
+    // }
+
+
+    /**
+     * Determine if the user can access the given panel.
+     *
+     * @param \Filament\Panel $panel
+     *
+     * @return bool
+     */
+    public function canAccessPanel(Panel $panel): bool
     {
-        static::creating(function (User $user) {
-            $user->role = 'customer';
-        });
+        $role = auth()->user()->role->name;
+
+        return match ($panel->getId()) {
+            'administrator' => $role === 'administrator',
+            'staff'         => $role === 'staff',
+            'customer'      => $role === 'customer',
+            default         => false,
+        };
     }
 }

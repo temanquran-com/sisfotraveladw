@@ -19,6 +19,10 @@ class PaketUmrohResource extends Resource
 {
     protected static ?string $model = PaketUmroh::class;
 
+    protected static ?string $navigationGroup = "Kelola Paket";
+
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationIcon = 'heroicon-o-flag';
 
     public static function form(Form $form): Form
@@ -33,6 +37,11 @@ class PaketUmrohResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('durasi_hari')
                     ->suffix('Hari')
+                    ->required()
+                    ->numeric()
+                    ->default(0),
+                Forms\Components\TextInput::make('kuota')
+                    ->suffix('Orang')
                     ->required()
                     ->numeric()
                     ->default(0),
@@ -108,6 +117,9 @@ class PaketUmrohResource extends Resource
                 Tables\Columns\TextColumn::make('nama_paket')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('durasi_hari')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('kuota')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('harga_paket')
