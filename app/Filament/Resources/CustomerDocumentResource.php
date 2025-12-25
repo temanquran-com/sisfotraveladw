@@ -27,7 +27,7 @@ class CustomerDocumentResource extends Resource
     //default hide
     public static function shouldRegisterNavigation(): bool
     {
-        return Filament::getCurrentPanel()?->getId() === 'adminXX';
+        return Filament::getCurrentPanel()?->getId() === 'staff';
     }
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box-arrow-down';

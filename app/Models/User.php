@@ -110,15 +110,25 @@ class User extends Authenticatable
      *
      * @return bool
      */
+    // public function canAccessPanel(Panel $panel): bool
+    // {
+    //     $role = auth()->user()->role->name;
+
+    //     return match ($panel->getId()) {
+    //         'administrator' => $role === 'administrator',
+    //         'staff'         => $role === 'staff',
+    //         'customer'      => $role === 'customer',
+    //         default         => false,
+    //     };
+    // }
+
     public function canAccessPanel(Panel $panel): bool
     {
-        $role = auth()->user()->role->name;
-
         return match ($panel->getId()) {
-            'administrator' => $role === 'administrator',
-            'staff'         => $role === 'staff',
-            'customer'      => $role === 'customer',
-            default         => false,
+            'administrator' => $this->hasRole('administrator'),
+            'staff' => $this->hasRole('staff'),
+            'customer' => $this->hasRole('customer'),
+            default => false,
         };
     }
 }

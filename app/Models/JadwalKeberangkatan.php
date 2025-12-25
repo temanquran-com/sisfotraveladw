@@ -12,13 +12,9 @@ class JadwalKeberangkatan extends Model
     protected $fillable = [
         'paket_umroh_id',
         'tour_leader_id',
-        // 'tour_leader_name',
         'muthawif_id',
-        // 'muthawif_name',
         'maskapai_id',
-        // 'maskapai_name',
         'bandara_id',
-        // 'bandara_name',
         'tanggal_keberangkatan',
         'tanggal_kembali',
         'jam_keberangkatan',
@@ -31,7 +27,6 @@ class JadwalKeberangkatan extends Model
     protected $casts = [
         'tanggal_keberangkatan' => 'date',
         'tanggal_kembali' => 'date',
-        // 'jam_keberangkatan' => 'time',
         'jam_keberangkatan' => 'string',
         'quota' => 'integer',
         'sisa_quota' => 'integer',

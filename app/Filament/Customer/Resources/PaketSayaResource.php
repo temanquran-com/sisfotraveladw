@@ -7,6 +7,7 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\PaketSaya;
 use Filament\Tables\Table;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\Layout\Split;
@@ -19,9 +20,34 @@ class PaketSayaResource extends Resource
 {
     protected static ?string $model = PaketSaya::class;
 
-    // protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    // protected static ?string $navigationIcon = 'heroicon-o-heart';
 
-    protected static ?string $navigationIcon = 'heroicon-o-heart';
+    protected static ?string $navigationIcon = 'heroicon-o-document-chart-bar';
+
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $slug = 'paket-sayas';
+
+    protected static ?string $navigationLabel = 'My Account';
+
+    /**
+     * NO CREATE / EDIT FROM HERE
+     */
+    public static function canCreate(): bool
+    {
+        return true;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return false;
+    }
+
+
+    public static function canAccess(): bool
+    {
+        return Filament::getCurrentPanel()?->getId() === 'customer';
+    }
 
     public static function form(Form $form): Form
     {
@@ -46,6 +72,15 @@ class PaketSayaResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+                ->emptyStateHeading('Belum ada Paket di Booking')
+                ->emptyStateDescription('Silakan lakukan booking Paket Umroh terlebih dahulu.')
+                ->emptyStateIcon('heroicon-o-calendar-days')
+                ->emptyStateActions([
+                    // Tables\Actions\Action::make('booking')
+                    //     ->label('Booking Paket Umroh')
+                    //     ->url(route('filament.customer.resources.bookings.index'))
+                    //     ->icon('heroicon-o-plus'),
+                ])
             ->columns([
 
                 Split::make([
@@ -103,5 +138,20 @@ class PaketSayaResource extends Resource
             'create' => Pages\FormPaketSaya::route('/create'),
             'edit' => Pages\EditPaketSaya::route('/{record}/edit'),
         ];
+    }
+
+    // public static function getEloquentQuery(): Builder
+    // {
+    //     return parent::getEloquentQuery()
+    //         ->where('customer_id', Filament::auth()->id());
+    // }
+    /**
+     * CUSTOMER ONLY SEE THEIR OWN BOOKINGS
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('customer_id', Filament::auth()->id())
+            ->latest();
     }
 }

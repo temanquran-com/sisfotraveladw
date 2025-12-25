@@ -2,22 +2,39 @@
 
 namespace App\Filament\Customer\Resources;
 
-use App\Filament\Customer\Resources\PaymentResource\Pages;
-use App\Filament\Customer\Resources\PaymentResource\RelationManagers;
-use App\Models\Payment;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
+use App\Models\Testimoni;
 use Filament\Tables\Table;
+use App\Models\MyTestimoni;
+use Filament\Facades\Filament;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Customer\Resources\MyTestimoniResource\Pages;
+use App\Filament\Customer\Resources\MyTestimoniResource\RelationManagers;
 
-class PaymentResource extends Resource
+class MyTestimoniResource extends Resource
 {
-    protected static ?string $model = Payment::class;
+    protected static ?string $model = Testimoni::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-book-open';
+
+    protected static ?int $navigationSort = 4;
+
+    protected static ?string $label = 'Testimoni Saya';
+
+    protected static ?string $navigationLabel = 'Testimoni Saya';
+
+    protected static ?string $title = 'Testimoni Saya';
+
+    protected static ?string $slug = 'testimoni-saya';
+
+    public static function canAccess(): bool
+    {
+        return Filament::getCurrentPanel()?->getId() === 'customer';
+    }
 
     public static function form(Form $form): Form
     {
@@ -37,7 +54,6 @@ class PaymentResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -59,10 +75,9 @@ class PaymentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPayments::route('/'),
-            'create' => Pages\CreatePayment::route('/create'),
-            'view' => Pages\ViewPayment::route('/{record}'),
-            'edit' => Pages\EditPayment::route('/{record}/edit'),
+            'index' => Pages\ListMyTestimonis::route('/'),
+            'create' => Pages\CreateMyTestimoni::route('/create'),
+            'edit' => Pages\EditMyTestimoni::route('/{record}/edit'),
         ];
     }
 

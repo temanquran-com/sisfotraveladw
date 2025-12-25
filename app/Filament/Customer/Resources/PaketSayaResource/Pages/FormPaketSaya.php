@@ -2,14 +2,20 @@
 
 namespace App\Filament\Customer\Resources\PaketSayaResource\Pages;
 
+use App\Models\Booking;
 use App\Models\PaketSaya;
 use App\Models\PaketUmroh;
+use Illuminate\Support\Str;
 use Filament\Resources\Pages\Page;
+use Illuminate\Support\HtmlString;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Concerns\InteractsWithForms;
 use App\Filament\Customer\Resources\PaketSayaResource;
 
@@ -26,12 +32,12 @@ class FormPaketSaya extends Page implements HasForms
 
     // Properties to store form data and selected values
     public $pakets = [];
-    public $paket_id;
-    public $booking_id;
     public $payment_id;
+    public $thumbnail;
     public $paketDetails;
 
     public ?array $data = [
+        'customer_id' => null,
         'paket_id' => null,
         'nama_paket' => null,
         'booking_id' => null,
@@ -42,6 +48,7 @@ class FormPaketSaya extends Page implements HasForms
             'include' => null,
             'exclude' => null,
             'booking_id' => null,
+            'thumbnail' => null,
         ],
     ];
 
@@ -49,6 +56,23 @@ class FormPaketSaya extends Page implements HasForms
     public function mount(): void
     {
         // Fill the form with existing data or defaults
+        // $this->form->fill($this->data);
+
+        if (auth()->check()) {
+            $customer = auth()->user()->customer;
+
+            if ($customer) {
+                $this->data['customer_id'] = $customer->id;
+            }
+        }
+
+        if ($this->data['paket_id']) {
+            $this->syncPaketDetails(
+                $this->data['paket_id'],
+                fn($key, $value) => data_set($this->data, $key, $value)
+            );
+        }
+
         $this->form->fill($this->data);
     }
 
@@ -56,44 +80,105 @@ class FormPaketSaya extends Page implements HasForms
     public function getFormSchema(): array
     {
         return [
-            Card::make()->schema([
-                Select::make('paket_id')
-                    ->label('Pilih Paket Umroh')
-                    ->options(PaketUmroh::query()->pluck('nama_paket', 'id'))
-                    ->live() // Make it reactive
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        // Sync package details when a new paket_id is selected
-                        $this->syncPaketDetails($state, $set);
-                    }),
+            Section::make([
+                Card::make([
+                    Grid::make()
+                        ->schema([
 
-                // Displaying Paket Nama and its details
-                TextInput::make('nama_paket')
-                    ->label('Nama Paket')
-                    ->disabled() // Disable editing
-                    ->dehydrated(false), // Don't hydrate this field
+                            Select::make('paket_id')
+                                ->label('Pilih Paket Umroh')
+                                ->columnSpanFull()
+                                ->options(PaketUmroh::query()->pluck('nama_paket', 'id'))
+                                ->live() // Make it reactive
+                                ->afterStateUpdated(function ($state, callable $set) {
+                                    // Sync package details when a new paket_id is selected
+                                    $this->syncPaketDetails($state, $set);
 
-                // Nested fields showing Paket details
-                TextInput::make('paket_details.harga_paket')
-                    ->label('Harga Paket')
-                    ->disabled()
-                    ->dehydrated(false),
+                                    // Generate booking code otomatis
+                                    $bookingCode = $this->generateBookingCode(
+                                        auth()->id(),
+                                        $state
+                                    );
 
-                TextInput::make('paket_details.durasi_hari')
-                    ->label('Durasi Hari')
-                    ->disabled()
-                    ->dehydrated(false),
+                                    $set('booking_id', $bookingCode);
+                                }),
 
-                TextInput::make('paket_details.include')
-                    ->label('Include')
-                    ->disabled()
-                    ->dehydrated(false),
+                            // Nested fields showing Paket details
+                            TextInput::make('paket_details.harga_paket')
+                                ->prefix('Rp.')
+                                ->label('Harga Paket')
+                                ->disabled()
+                                ->dehydrated(true)
+                                // ->formatStateUsing(fn ($state, $get) =>
+                                //     optional(
+                                //         PaketUmroh::find($get('paket_id'))
+                                //     )->harga_formatted
+                                // )
+                                ->formatStateUsing(fn ($state) =>
+                                    $state ? number_format($state, 0, ',', '.') : null
+                                ),
 
-                TextInput::make('paket_details.exclude')
-                    ->label('Exclude')
-                    ->disabled()
-                    ->dehydrated(false),
-            ])
-            ->statePath('data') // Bind all fields to $this->data
+                            TextInput::make('paket_details.durasi_hari')
+                                ->label('Durasi Hari')
+                                ->suffix('Hari')
+                                ->disabled()
+                                ->dehydrated(true),
+
+                            Textarea::make('paket_details.include')
+                                ->label('Include')
+                                ->disabled()
+                                ->columnSpanFull()
+                                ->rows(3)
+                                ->dehydrated(true),
+
+                            Textarea::make('paket_details.exclude')
+                                ->label('Exclude')
+                                ->disabled()
+                                ->columnSpanFull()
+                                ->rows(3)
+                                ->dehydrated(true),
+                        ])
+                        ->columns(2)
+                        ->columnSpan(1),
+                    Placeholder::make('thumbnail_preview')
+                        ->statePath('data')
+                        ->label('Thumbnail')
+                        ->content(
+                            fn($get) =>
+                            $get('paket_details.thumbnail')
+                                ? view('components.thumbnail-preview', [
+                                    'src' => $get('paket_details.thumbnail'),
+                                ])
+                                : '-'
+                        ),
+                    // ->content(fn($get) => dd(
+                    //     $get('paket_details.exclude'),
+                    //     $get('paket_details.thumbnail'),
+                    //     asset('storage/' . $get('paket_details.thumbnail'))
+                    // )),
+
+                ])
+                    ->statePath('data') // Bind all fields to $this->data
+                    ->columns(2), // Bind all fields to $this->data
+                Section::make([
+                    Placeholder::make('customer_name')
+                        ->label('Nama Customer')
+                        ->content(fn() => auth()->user()?->name ?? '-')
+                        ->extraAttributes([
+                            'class' => 'text-lg font-semibold text-primary-400',
+                        ]),
+
+                    Placeholder::make('booking_code')
+                        ->label('Booking Code')
+                        ->content(fn($get) => $get('booking_id') ?? '-')
+                        ->extraAttributes([
+                            'class' => 'text-lg font-semibold text-primary-400',
+                        ]),
+                ])
+                    ->statePath('data')
+                    ->columnSpanFull(),
+
+            ]),
         ];
     }
 
@@ -104,38 +189,61 @@ class FormPaketSaya extends Page implements HasForms
      * @param callable $set
      * @return void
      */
-    protected function syncPaketDetails($paketId, callable $set)
+
+    protected function syncPaketDetails($paketId, callable $set): void
     {
-        // Fetch PaketUmroh details based on selected paket_id
         $paket = PaketUmroh::find($paketId);
 
-        // Set the related fields if paket is found
-        if ($paket) {
-            $set('nama_paket', $paket->nama_paket);
-            $set('paket_details.harga_paket', $paket->harga_paket);
-            $set('paket_details.durasi_hari', $paket->durasi_hari);
-            $set('paket_details.include', $paket->include);
-            $set('paket_details.exclude', $paket->exclude);
+        if (! $paket) {
+            return;
         }
+
+        $set('nama_paket', $paket->nama_paket);
+        $set('paket_details.harga_paket', $paket->harga_paket);
+        $set('paket_details.durasi_hari', $paket->durasi_hari);
+        $set('paket_details.include', $paket->include);
+        $set('paket_details.exclude', $paket->exclude);
+        $set('paket_details.thumbnail', $paket->thumbnail);
+        // dd($paket->thumbnail);
     }
 
     // Method to handle saving the form data
+    // public function save()
+    // {
+    //     // Ensure necessary fields are set before saving
+    //     $this->validateBookingId();  // Validate if booking_id is set
+
+    //     // Save the data to the PaketSaya model
+    //     $paketSaya = PaketSaya::create([
+    //         'customer_id' => 2,
+    //         'paket_id' => $this->paket_id,
+    //         'booking_id' => 31,
+    //         'payment_id' => 1,
+    //         'created_by' => auth()->id(),
+    //     ]);
+
+    //     // Flash message to confirm successful save
+    //     session()->flash('message', 'Paket has been successfully saved!');
+    // }
+
     public function save()
     {
-        // Ensure necessary fields are set before saving
-        $this->validateBookingId();  // Validate if booking_id is set
+        $data = $this->form->getState();
 
-        // Save the data to the PaketSaya model
-        $paketSaya = PaketSaya::create([
-            'customer_id' => 2,
-            'paket_id' => $this->paket_id,
-            'booking_id' => 31,
-            'payment_id' => 1,
-            'created_by' => auth()->id(),
+        if (empty($data['booking_id'])) {
+            $this->addError('booking_id', 'Booking wajib ada');
+            return;
+        }
+
+        PaketSaya::create([
+            'customer_id' => auth()->id(),
+            'booking_id'  => $data['booking_id'],
+            'payment_id'  => $data['payment_id'] ?? null,
+            'paket_id'    => $data['paket_id'],
+            'created_by'  => auth()->id(),
         ]);
 
-        // Flash message to confirm successful save
-        session()->flash('message', 'Paket has been successfully saved!');
+        $this->notify('success', 'Paket berhasil disimpan');
     }
 
     /**
@@ -143,11 +251,50 @@ class FormPaketSaya extends Page implements HasForms
      *
      * @return void
      */
-    protected function validateBookingId()
+    // protected function validateBookingId()
+    // {
+    //     if (empty($this->booking_id)) {
+    //         session()->flash('error', 'Booking ID is required');
+    //         return;
+    //     }
+    // }
+
+    public function getHargaFormattedAttribute(): string
     {
-        if (empty($this->booking_id)) {
-            session()->flash('error', 'Booking ID is required');
-            return;
-        }
+        return number_format($this->harga_paket, 0, ',', '.');
+    }
+
+    protected function generateBookingCode(
+        ?int $customerId = null,
+        ?int $paketId = null
+    ): string {
+        $customer = $customerId
+            ? auth()->user()
+            : null;
+
+        $paket = $paketId
+            ? PaketUmroh::find($paketId)
+            : null;
+
+        $customerPart = $customer
+            ? Str::upper(Str::limit(Str::slug($customer->name, ''), 5, ''))
+            : 'CUST';
+
+        $paketPart = $paket
+            ? Str::upper(Str::limit(Str::slug($paket->nama_paket, ''), 5, ''))
+            : 'PKT';
+
+        $datePart = now()->format('Ymd');
+
+        do {
+            $randomPart = str_pad(random_int(1, 999), 3, '0', STR_PAD_LEFT);
+
+            // Contoh hasil: ADW-PKT01-JOFUN-20251225-123
+            $code = "ADW-{$paketPart}-{$customerPart}-{$datePart}-{$randomPart}";
+        } while (
+            Booking::where('booking_code', $code)->exists()
+        );
+
+        return $code;
     }
 }

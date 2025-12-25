@@ -1,28 +1,40 @@
 <?php
 
-namespace App\Filament\Staff\Resources;
+namespace App\Filament\Customer\Resources;
 
-
-use App\Filament\Staff\Resources\PaymentStaffResource\Pages;
-use App\Filament\Staff\Resources\PaymentStaffResource\RelationManagers;
-use App\Models\Payment;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use Filament\Forms;
 use Filament\Tables;
+use App\Models\Gallery;
+use Filament\Forms\Form;
+use App\Models\MyGallery;
 use Filament\Tables\Table;
+use Filament\Facades\Filament;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Customer\Resources\MyGalleryResource\Pages;
+use App\Filament\Customer\Resources\MyGalleryResource\RelationManagers;
 
-
-class PaymentStaffResource extends Resource
+class MyGalleryResource extends Resource
 {
-    protected static ?string $model = Payment::class;
+    protected static ?string $model = Gallery::class;
 
-    protected static ?string $navigationGroup = "Kelola Pembayaran";
+    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
 
-    protected static ?string $navigationIcon = 'heroicon-o-credit-card';
+    public static function canAccess(): bool
+    {
+        return Filament::getCurrentPanel()?->getId() === 'customer';
+    }
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
+
+    protected static ?string $label = 'Galeri Saya';
+
+    protected static ?string $navigationLabel = 'Galeri Saya';
+
+    protected static ?string $title = 'Galeri Saya';
+
+    protected static ?string $slug = 'my-gallery';
 
     public static function form(Form $form): Form
     {
@@ -63,9 +75,9 @@ class PaymentStaffResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPaymentStaff::route('/'),
-            'create' => Pages\CreatePaymentStaff::route('/create'),
-            'edit' => Pages\EditPaymentStaff::route('/{record}/edit'),
+            'index' => Pages\ListMyGalleries::route('/'),
+            'create' => Pages\CreateMyGallery::route('/create'),
+            'edit' => Pages\EditMyGallery::route('/{record}/edit'),
         ];
     }
 

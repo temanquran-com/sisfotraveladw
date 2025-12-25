@@ -26,7 +26,11 @@ class PendaftaranResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = "Kelola Customer";
+
+    protected static ?int $navigationSort = 0;
+
+    protected static ?string $navigationIcon = 'heroicon-o-heart';
 
     // public static function shouldRegisterNavigation(): bool
     // {

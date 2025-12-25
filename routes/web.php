@@ -28,9 +28,25 @@ use Filament\Http\Controllers\Auth\LogoutController;
 
 // Route::get('/', HomePage::class)->name('beranda');
 
+//using filament
 Route::get('/login', function () {
     return redirect('customer/login');
 })->name('login');
+
+
+// Route::middleware('guest')->group(function () {
+//     Route::get('/login', Login::class)->name('login');
+//     Route::get('/register', Register::class)->name('register');
+// });
+
+Route::post('/logout', function () {
+    auth()->logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect('/');
+})->name('logout');
+
+
 
 Route::get('/', Beranda::class)->name('beranda');
 Route::get('/testimoni', Testimoni::class)->name('testimoni');

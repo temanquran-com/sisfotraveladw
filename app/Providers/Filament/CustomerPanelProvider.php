@@ -37,6 +37,8 @@ class CustomerPanelProvider extends PanelProvider
             ->profile()
             // ->registration(\App\Filament\Customer\Pages\Auth\Register::class)
             ->registration(Register::class)
+            ->topNavigation()
+            // ->authGuard('web')
             // ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE, fn (): string => Blade::render('<x-filament::link href="' . config('app.url') . '" size="sm" icon="heroicon-o-arrow-left">back to website</x-filament::link>'))
 
             ->pages([
@@ -53,7 +55,7 @@ class CustomerPanelProvider extends PanelProvider
                 in: app_path('Filament/Customer/Pages'),
                 for: 'App\\Filament\\Customer\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                // Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Customer/Widgets'), for: 'App\\Filament\\Customer\\Widgets')
             ->widgets([

@@ -1,32 +1,27 @@
 <?php
 
-namespace App\Filament\Customer\Resources;
+namespace App\Filament\Staff\Resources;
 
+use App\Filament\Staff\Resources\InfoDelayResource\Pages;
+use App\Filament\Staff\Resources\InfoDelayResource\RelationManagers;
+use App\Models\JadwalKeberangkatan;
 use Filament\Forms;
-use Filament\Tables;
 use Filament\Forms\Form;
-use App\Models\Testimoni;
-use Filament\Tables\Table;
-use App\Models\TestimoniSaya;
-use Filament\Facades\Filament;
 use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Customer\Resources\TestimoniSayaResource\Pages;
-use App\Filament\Customer\Resources\TestimoniSayaResource\RelationManagers;
 
-class TestimoniSayaResource extends Resource
+class InfoDelayResource extends Resource
 {
-    protected static ?string $model = Testimoni::class;
+    protected static ?string $model = JadwalKeberangkatan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-book-open';
+    protected static ?string $navigationGroup = "Kelola Jadwal";
 
+    protected static ?int $navigationSort = 2;
 
-    //default hide
-    // public static function shouldRegisterNavigation(): bool
-    // {
-    //     return Filament::getCurrentPanel()?->getId() === 'customer';
-    // }
+    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
 
     public static function form(Form $form): Form
     {
@@ -47,7 +42,6 @@ class TestimoniSayaResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -56,10 +50,19 @@ class TestimoniSayaResource extends Resource
             ]);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageTestimoniSayas::route('/'),
+            'index' => Pages\ListInfoDelays::route('/'),
+            'create' => Pages\CreateInfoDelay::route('/create'),
+            'edit' => Pages\EditInfoDelay::route('/{record}/edit'),
         ];
     }
 }

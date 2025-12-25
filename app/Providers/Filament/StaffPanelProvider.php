@@ -33,6 +33,8 @@ class StaffPanelProvider extends PanelProvider
             ->navigationGroups([
                 'Kelola Customer',
                 'Kelola Pembayaran',
+                'Kelola Jadwal',
+                'Perlindung',
             ])
             ->discoverResources(
                 in: app_path('Filament/Staff/Resources'),

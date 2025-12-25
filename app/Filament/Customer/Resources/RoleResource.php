@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Filament\Staff\Resources;
+namespace App\Filament\Customer\Resources;
 
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use BezhanSalleh\FilamentShield\Forms\ShieldSelectAllToggle;
-use App\Filament\Staff\Resources\RoleResource\Pages;
+use App\Filament\Customer\Resources\RoleResource\Pages;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use BezhanSalleh\FilamentShield\Traits\HasShieldFormComponents;
 use Filament\Facades\Filament;
@@ -24,8 +24,6 @@ class RoleResource extends Resource implements HasShieldPermissions
     use HasShieldFormComponents;
 
     protected static ?string $recordTitleAttribute = 'name';
-
-    protected static ?int $navigationSort = 5;
 
     public static function getPermissionPrefixes(): array
     {

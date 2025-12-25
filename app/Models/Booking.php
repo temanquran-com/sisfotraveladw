@@ -98,10 +98,10 @@ class Booking extends Model
         });
     }
 
-    public function getIsFullyPaidAttribute()
-    {
-        return $this->payments()->sum('amount') >= $this->total_price;
-    }
+    // public function getIsFullyPaidAttribute()
+    // {
+    //     return $this->payments()->sum('amount') >= $this->total_price;
+    // }
 
     public function getTanggalFormattedAttribute(): string
     {
