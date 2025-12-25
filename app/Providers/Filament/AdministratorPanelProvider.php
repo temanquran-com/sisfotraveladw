@@ -50,7 +50,9 @@ class AdministratorPanelProvider extends PanelProvider
             ->discoverPages(
                 in: app_path('Filament/Pages'),
                 for: 'App\\Filament\\Pages')
-            ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
+            ->discoverClusters(
+                in: app_path('Filament/Clusters'),
+                for: 'App\\Filament\\Clusters')
             ->pages([
                 // Pages\Dashboard::class,
             ])

@@ -43,62 +43,63 @@ class PendaftaranResource extends Resource
         return 'pendaftaran';
     }
 
+
     public static function form(Form $form): Form
     {
-  return $form
-        ->schema([
-            Section::make('Data Customer')
+        return $form
                 ->schema([
-                    Grid::make(2)
+                    Section::make('Data Customer')
                         ->schema([
-                            TextInput::make('name')
-                                ->label('Nama Lengkap')
-                                ->required()
-                                ->maxLength(255),
+                            Grid::make(2)
+                                ->schema([
+                                    TextInput::make('name')
+                                        ->label('Nama Lengkap')
+                                        ->required()
+                                        ->maxLength(255),
 
-                            TextInput::make('phone')
-                                ->label('No. HP / WhatsApp')
-                                ->tel()
+                                    TextInput::make('phone')
+                                        ->label('No. HP / WhatsApp')
+                                        ->tel()
+                                        ->required()
+                                        ->maxLength(20),
+                                ]),
+
+                            TextInput::make('email')
+                                ->label('Email')
+                                ->email()
                                 ->required()
-                                ->maxLength(20),
+                                ->unique(
+                                    table: User::class,
+                                    ignorable: fn ($record) => $record
+                                )
+                                ->maxLength(255),
                         ]),
 
-                    TextInput::make('email')
-                        ->label('Email')
-                        ->email()
-                        ->required()
-                        ->unique(
-                            table: User::class,
-                            ignorable: fn ($record) => $record
-                        )
-                        ->maxLength(255),
-                ]),
+                    Section::make('Keamanan Akun')
+                        ->schema([
+                            TextInput::make('password')
+                                ->label('Password')
+                                ->password()
+                                ->rule(Password::default())
+                                ->required(fn (string $context) => $context === 'create')
+                                ->dehydrated(fn ($state) => filled($state))
+                                ->maxLength(255)
+                                ->confirmed(),
 
-            Section::make('Keamanan Akun')
-                ->schema([
-                    TextInput::make('password')
-                        ->label('Password')
-                        ->password()
-                        ->rule(Password::default())
-                        ->required(fn (string $context) => $context === 'create')
-                        ->dehydrated(fn ($state) => filled($state))
-                        ->maxLength(255)
-                        ->confirmed(),
+                            TextInput::make('password_confirmation')
+                                ->label('Konfirmasi Password')
+                                ->password()
+                                ->required(fn (string $context) => $context === 'create')
+                                ->dehydrated(false),
+                        ]),
 
-                    TextInput::make('password_confirmation')
-                        ->label('Konfirmasi Password')
-                        ->password()
-                        ->required(fn (string $context) => $context === 'create')
-                        ->dehydrated(false),
-                ]),
-
-            /**
-             * Hidden field
-             * Role selalu customer
-             */
-            Hidden::make('role')
-                ->default('customer'),
-        ]);
+                    /**
+                     * Hidden field
+                     * Role selalu customer
+                     */
+                    Hidden::make('role')
+                        ->default('customer'),
+                ]);
     }
 
     public static function table(Table $table): Table
@@ -131,7 +132,7 @@ class PendaftaranResource extends Resource
                 TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),       // soft delete
                 Tables\Actions\RestoreAction::make(),
             ])
