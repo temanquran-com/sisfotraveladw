@@ -31,30 +31,58 @@ class PaymentResource extends Resource
     {
         return $form
             ->schema([
-
                 Section::make([
+                    // Select::make('booking_id')
+                    //     ->label('Booking ID')
+                    //     ->relationship('booking', 'booking_code')
+                    //     ->preload()
+                    //     ->reactive()
+                    //     ->columnSpanFull()
+                    //     ->afterStateUpdated(function ($state, callable $set) {
+                    //         $paket = \App\Models\Booking::find($state);
+                    //         if ($paket) {
+                    //             $set('customer_id', $paket->customer_id);
+                    //             $set('total_price',  (float) $paket->total_price);
+                    //             $set('sisa_tagihan', (float) $paket->sisa_tagihan);
+                    //             // $set('sisa_quota', $paket->kuota);
+                    //             // $set('total_price', (float) $paket->harga_paket);
+                    //         } else {
+                    //             $set('customer_id', null);
+                    //             $set('total_price', null);
+                    //             $set('sisa_tagihan', null);
+                    //             // $set('sisa_quota', null);
+                    //             // $set('total_price', null);
+                    //         }
+                    //     }),
+
                     Select::make('booking_id')
                         ->label('Booking ID')
-                        ->relationship('booking', 'booking_code')
+                        ->relationship(
+                            'booking',
+                            'booking_code',
+                            fn ($query) => $query->whereNotNull('booking_code')
+                        )
                         ->preload()
                         ->reactive()
                         ->columnSpanFull()
                         ->afterStateUpdated(function ($state, callable $set) {
-                            $paket = \App\Models\Booking::find($state);
-                            if ($paket) {
-                                $set('total_price',  (float) $paket->total_price);
-                                $set('sisa_tagihan', (float) $paket->sisa_tagihan);
-                                // $set('quota', $paket->kuota);
-                                // $set('sisa_quota', $paket->kuota);
-                                // $set('total_price', (float) $paket->harga_paket);
+                            $booking = \App\Models\Booking::find($state);
+
+                            if ($booking) {
+                                $set('customer_id', $booking->customer_id);
+                                $set('total_price', (float) $booking->total_price);
+                                $set('sisa_tagihan', (float) $booking->sisa_tagihan);
                             } else {
+                                $set('customer_id', null);
                                 $set('total_price', null);
                                 $set('sisa_tagihan', null);
-                                // $set('quota', null);
-                                // $set('sisa_quota', null);
-                                // $set('total_price', null);
                             }
-                        }),
+                    }),
+
+                    TextInput::make('customer_id')
+                        ->hidden()
+                        ->disabled() // Disable editing
+                        ->dehydrated(false), // Don't hydrate this field
 
                     TextInput::make('total_price')
                         ->label('Harga Paket')
@@ -69,11 +97,6 @@ class PaymentResource extends Resource
                 ])->columns(2),
 
                 Section::make([
-                    // TextInput::make('jumlah_bayar')
-                    // ->prefix('Rp.')
-                    // ->required()
-                    // ->numeric()
-                    // ->default(0.00),
                     TextInput::make('jumlah_bayar')
                         ->numeric()
                         ->required()

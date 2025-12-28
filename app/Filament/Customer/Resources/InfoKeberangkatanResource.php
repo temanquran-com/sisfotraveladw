@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Customer\Resources\InfoKeberangkatanResource\Pages;
@@ -26,7 +27,7 @@ class InfoKeberangkatanResource extends Resource
         return Filament::getCurrentPanel()?->getId() === 'customer';
     }
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 5;
 
      protected static ?string $label = 'Info Keberangkatan';
 
@@ -47,6 +48,15 @@ class InfoKeberangkatanResource extends Resource
    public static function table(Table $table): Table
     {
         return $table
+              ->emptyStateHeading('Belum ada info keberangkatan')
+                ->emptyStateDescription('Silakan Lengkapi Data Profile & Lakukan Booking Paket Umroh Terlebih Dahulu.')
+                ->emptyStateIcon('heroicon-o-calendar-days')
+                ->emptyStateActions([
+                    // Tables\Actions\Action::make('booking')
+                    //     ->label('Booking Paket Umroh')
+                    //     ->url(route('filament.customer.resources.bookings.index'))
+                    //     ->icon('heroicon-o-plus'),
+                ])
             ->columns([
                 Tables\Columns\TextColumn::make('booking_code')
                     ->label('Kode Booking')
@@ -87,9 +97,18 @@ class InfoKeberangkatanResource extends Resource
         ];
     }
 
+    // public static function getEloquentQuery(): Builder
+    // {
+    //     return parent::getEloquentQuery()
+    //         ->withoutGlobalScopes([
+    //             SoftDeletingScope::class,
+    //         ]);
+    // }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
+            ->where('customer_id', Auth::id())
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);

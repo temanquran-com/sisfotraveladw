@@ -12,23 +12,30 @@ use Filament\Resources\Resource;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\Layout\Split;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Customer\Clusters\MyAccount;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Customer\Resources\PaketSayaResource\Pages;
 use App\Filament\Customer\Resources\PaketSayaResource\RelationManagers;
+use App\Models\Booking;
 
 class PaketSayaResource extends Resource
 {
-    protected static ?string $model = PaketSaya::class;
-
-    // protected static ?string $navigationIcon = 'heroicon-o-heart';
+    protected static ?string $model = Booking::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-chart-bar';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 2;
+
+    // public static function getLabel(): string
+    // {
+    //     return 'Booking Paket';
+    // }
 
     protected static ?string $slug = 'paket-sayas';
 
-    protected static ?string $navigationLabel = 'My Account';
+    // protected static ?string $cluster = MyAccount::class;cs
+
+    protected static ?string $navigationLabel = 'Booking';
 
     /**
      * NO CREATE / EDIT FROM HERE
@@ -43,7 +50,6 @@ class PaketSayaResource extends Resource
         return false;
     }
 
-
     public static function canAccess(): bool
     {
         return Filament::getCurrentPanel()?->getId() === 'customer';
@@ -53,19 +59,19 @@ class PaketSayaResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('customer_id')
-                    ->required()
-                    ->readOnly()
-                    ->default(auth()->id()),
-                Forms\Components\TextInput::make('booking_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('payment_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('created_by')
-                    ->required()
-                    ->numeric(),
+                // Forms\Components\TextInput::make('customer_id')
+                //     ->required()
+                //     ->readOnly()
+                //     ->default(auth()->id()),
+                // Forms\Components\TextInput::make('booking_id')
+                //     ->required()
+                //     ->numeric(),
+                // Forms\Components\TextInput::make('payment_id')
+                //     ->required()
+                //     ->numeric(),
+                // Forms\Components\TextInput::make('created_by')
+                //     ->required()
+                //     ->numeric(),
             ]);
     }
 

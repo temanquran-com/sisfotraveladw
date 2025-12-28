@@ -75,17 +75,25 @@ class MyGalleryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListMyGalleries::route('/'),
+            'index' => Pages\GaleriSaya::route('/'),
             'create' => Pages\CreateMyGallery::route('/create'),
             'edit' => Pages\EditMyGallery::route('/{record}/edit'),
         ];
     }
 
+    /**
+    * CUSTOMER ONLY SEE THEIR OWN Data
+    */
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
+            ->where('user_id', Filament::auth()->id())
+            ->latest()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
     }
+
+
+
 }

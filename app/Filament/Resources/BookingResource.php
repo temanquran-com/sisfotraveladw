@@ -43,9 +43,26 @@ class BookingResource extends Resource
                         //     ->preload()
                         //     ->required(),
 
+                        // Select::make('customer_id')
+                        //     ->label('Customer')
+                        //     ->relationship('customer', 'nama_ktp')
+                        //     ->reactive()
+                        //     ->afterStateUpdated(
+                        //         fn($state, callable $set, callable $get) =>
+                        //         $set('booking_code', static::generateBookingCode(
+                        //             customerId: $state,
+                        //             paketId: $get('paket_umroh_id')
+                        //         ))
+                        //     )
+                        //     ->required(),
+
                         Select::make('customer_id')
                             ->label('Customer')
                             ->relationship('customer', 'nama_ktp')
+                            ->getOptionLabelFromRecordUsing(
+                                fn($record) => $record->nama_ktp
+                                    ?? 'Customer #' . $record->id
+                            )
                             ->reactive()
                             ->afterStateUpdated(
                                 fn($state, callable $set, callable $get) =>
@@ -73,6 +90,13 @@ class BookingResource extends Resource
                         Select::make('paket_umroh_id')
                             ->label('Pilih Paket Umroh')
                             ->relationship('paketUmroh', 'nama_paket')
+                            ->getOptionLabelFromRecordUsing(function ($record) {
+                                $tanggal = $record->tanggal_start
+                                    ? Carbon::parse($record->tanggal_start)->translatedFormat('d M Y')
+                                    : '—';
+
+                                return "{$record->nama_paket} — {$tanggal}";
+                            })
                             ->preload()
                             ->reactive()
                             ->columnSpanFull()
@@ -83,7 +107,7 @@ class BookingResource extends Resource
                                     $set('tanggal_kembali', $paket->tanggal_end);
                                     $set('quota', $paket->kuota);
                                     $set('sisa_quota', $paket->kuota);
-                                     $set('total_price', (float) $paket->harga_paket);
+                                    $set('total_price', (float) $paket->harga_paket);
                                 } else {
                                     $set('tanggal_keberangkatan', null);
                                     $set('tanggal_kembali', null);
@@ -94,12 +118,13 @@ class BookingResource extends Resource
                             }),
                         TextInput::make('quota')
                             ->label('Kuota')
+                            ->numeric()
                             ->disabled() // Disable editing
                             ->prefix('Paket')
                             ->suffix('Orang')
                             ->dehydrated(false), // Don't hydrate this field
 
-                         TextInput::make('total_price')
+                        TextInput::make('total_price')
                             ->label("Biaya")
                             ->readOnly()
                             ->dehydrated(true) // send to DB
@@ -113,21 +138,22 @@ class BookingResource extends Resource
 
                         Select::make('jadwal_keberangkatan_id')
                             ->label('Jadwal Keberangkatan')
-                            ->options(fn () => \App\Models\JadwalKeberangkatan::query()
-                                ->orderBy('tanggal_keberangkatan')
-                                ->get()
-                                ->mapWithKeys(fn ($c) => [
-                                    $c->id => Carbon::parse($c->tanggal_keberangkatan)
-                                        ->translatedFormat('l, d M Y'),
-                                ])
-                                ->toArray()
+                            ->options(
+                                fn() => \App\Models\JadwalKeberangkatan::query()
+                                    ->orderBy('tanggal_keberangkatan')
+                                    ->get()
+                                    ->mapWithKeys(fn($c) => [
+                                        $c->id => Carbon::parse($c->tanggal_keberangkatan)
+                                            ->translatedFormat('l, d M Y'),
+                                    ])
+                                    ->toArray()
                             )
                             ->searchable()
                             ->preload()
                             ->required(),
 
                     ])
-                    ->columns(3),
+                        ->columns(3),
                 ])->aside(false),
 
 
@@ -157,6 +183,7 @@ class BookingResource extends Resource
                 // Forms\Components\TextInput::make('created_by')
                 //     ->readOnly()
                 //     ->default(auth()->id()),
+
             ]);
     }
 
@@ -190,13 +217,13 @@ class BookingResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->alignCenter()
-                        ->badge()
-                        ->color(fn(string $state): string => match ($state) {
-                            'paid' => 'success',
-                            'partial' => 'warning',
-                            'pending' => 'danger',
-                            'waiting_payment' => 'danger',
-                        }),
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'paid' => 'success',
+                        'partial' => 'warning',
+                        'pending' => 'danger',
+                        'waiting_payment' => 'danger',
+                    }),
                 Tables\Columns\TextColumn::make('total_price')
                     ->prefix('Rp. ')
                     ->numeric()
@@ -260,7 +287,7 @@ class BookingResource extends Resource
             $randomPart = str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
 
             // $code = "ADW-{$paketPart}-{$customerPart}-{$datePart}-{$randomPart}";
-             $code = "ADW-{$customerPart}-{$datePart}-{$randomPart}";
+            $code = "ADW-{$customerPart}-{$datePart}-{$randomPart}";
         } while (
             \App\Models\Booking::where('booking_code', $code)->exists()
         );

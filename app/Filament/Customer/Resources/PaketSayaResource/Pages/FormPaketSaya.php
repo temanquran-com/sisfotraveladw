@@ -30,6 +30,7 @@ class FormPaketSaya extends Page implements HasForms
     // Form handling and state management
     use InteractsWithForms;
 
+
     // Properties to store form data and selected values
     public $pakets = [];
     public $payment_id;
@@ -80,87 +81,96 @@ class FormPaketSaya extends Page implements HasForms
     public function getFormSchema(): array
     {
         return [
-            Section::make([
-                Card::make([
-                    Grid::make()
-                        ->schema([
+            Section::make('Paket Umroh')
+                ->collapsible()
+                ->schema([
+                    Card::make([
+                        Grid::make()
+                            ->schema([
+                                Select::make('paket_id')
+                                    ->label('Pilih Paket Umroh')
+                                    ->columnSpanFull()
+                                    ->options(PaketUmroh::query()->pluck('nama_paket', 'id'))
+                                    ->live() // Make it reactive
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        // Sync package details when a new paket_id is selected
+                                        $this->syncPaketDetails($state, $set);
 
-                            Select::make('paket_id')
-                                ->label('Pilih Paket Umroh')
-                                ->columnSpanFull()
-                                ->options(PaketUmroh::query()->pluck('nama_paket', 'id'))
-                                ->live() // Make it reactive
-                                ->afterStateUpdated(function ($state, callable $set) {
-                                    // Sync package details when a new paket_id is selected
-                                    $this->syncPaketDetails($state, $set);
+                                        // Generate booking code otomatis
+                                        $bookingCode = $this->generateBookingCode(
+                                            auth()->id(),
+                                            $state
+                                        );
 
-                                    // Generate booking code otomatis
-                                    $bookingCode = $this->generateBookingCode(
-                                        auth()->id(),
-                                        $state
-                                    );
+                                        $set('booking_id', $bookingCode);
+                                    }),
 
-                                    $set('booking_id', $bookingCode);
-                                }),
+                                // Nested fields showing Paket details
+                                TextInput::make('paket_details.harga_paket')
+                                    ->prefix('Rp.')
+                                    ->label('Harga Paket')
+                                    ->disabled()
+                                    ->dehydrated(true)
+                                    // ->formatStateUsing(fn ($state, $get) =>
+                                    //     optional(
+                                    //         PaketUmroh::find($get('paket_id'))
+                                    //     )->harga_formatted
+                                    // )
+                                    ->formatStateUsing(
+                                        fn($state) =>
+                                        $state ? number_format($state, 0, ',', '.') : null
+                                    ),
 
-                            // Nested fields showing Paket details
-                            TextInput::make('paket_details.harga_paket')
-                                ->prefix('Rp.')
-                                ->label('Harga Paket')
-                                ->disabled()
-                                ->dehydrated(true)
-                                // ->formatStateUsing(fn ($state, $get) =>
-                                //     optional(
-                                //         PaketUmroh::find($get('paket_id'))
-                                //     )->harga_formatted
-                                // )
-                                ->formatStateUsing(fn ($state) =>
-                                    $state ? number_format($state, 0, ',', '.') : null
-                                ),
+                                TextInput::make('paket_details.durasi_hari')
+                                    ->label('Durasi Hari')
+                                    ->suffix('Hari')
+                                    ->disabled()
+                                    ->dehydrated(true),
 
-                            TextInput::make('paket_details.durasi_hari')
-                                ->label('Durasi Hari')
-                                ->suffix('Hari')
-                                ->disabled()
-                                ->dehydrated(true),
+                                Textarea::make('paket_details.include')
+                                    ->label('Include')
+                                    ->disabled()
+                                    ->columnSpanFull()
+                                    ->rows(3)
+                                    ->dehydrated(true),
 
-                            Textarea::make('paket_details.include')
-                                ->label('Include')
-                                ->disabled()
-                                ->columnSpanFull()
-                                ->rows(3)
-                                ->dehydrated(true),
+                                Textarea::make('paket_details.exclude')
+                                    ->label('Exclude')
+                                    ->disabled()
+                                    ->columnSpanFull()
+                                    ->rows(3)
+                                    ->dehydrated(true),
+                            ])
+                            ->columns(2)
+                            ->columnSpan(1),
+                        Placeholder::make('thumbnail_preview')
+                            ->statePath('data')
+                            ->label('Thumbnail')
+                            ->extraAttributes(['class' => 'w-12 h-24'])
+                            ->content(
+                                fn($get) =>
+                                $get('paket_details.thumbnail')
+                                    ? view('components.thumbnail-preview', [
+                                        'src' => $get('paket_details.thumbnail'),
+                                    ])
+                                    : '-'
+                            ),
+                        // ->content(fn($get) => dd(
+                        //     $get('paket_details.exclude'),
+                        //     $get('paket_details.thumbnail'),
+                        //     asset('storage/' . $get('paket_details.thumbnail'))
+                        // )),
 
-                            Textarea::make('paket_details.exclude')
-                                ->label('Exclude')
-                                ->disabled()
-                                ->columnSpanFull()
-                                ->rows(3)
-                                ->dehydrated(true),
-                        ])
-                        ->columns(2)
-                        ->columnSpan(1),
-                    Placeholder::make('thumbnail_preview')
-                        ->statePath('data')
-                        ->label('Thumbnail')
-                        ->content(
-                            fn($get) =>
-                            $get('paket_details.thumbnail')
-                                ? view('components.thumbnail-preview', [
-                                    'src' => $get('paket_details.thumbnail'),
-                                ])
-                                : '-'
-                        ),
-                    // ->content(fn($get) => dd(
-                    //     $get('paket_details.exclude'),
-                    //     $get('paket_details.thumbnail'),
-                    //     asset('storage/' . $get('paket_details.thumbnail'))
-                    // )),
+                    ])
+                        ->statePath('data') // Bind all fields to $this->data
+                        ->columns(2), // Bind all fields to $this->data
 
-                ])
-                    ->statePath('data') // Bind all fields to $this->data
-                    ->columns(2), // Bind all fields to $this->data
-                Section::make([
+                ]),
+
+            Section::make('Data Booking')
+                ->collapsible()
+                ->collapsed(true)
+                ->schema([
                     Placeholder::make('customer_name')
                         ->label('Nama Customer')
                         ->content(fn() => auth()->user()?->name ?? '-')
@@ -175,10 +185,29 @@ class FormPaketSaya extends Page implements HasForms
                             'class' => 'text-lg font-semibold text-primary-400',
                         ]),
                 ])
-                    ->statePath('data')
-                    ->columnSpanFull(),
+                ->statePath('data')
+                ->columnSpanFull(),
 
-            ]),
+            Section::make('Payment')
+                ->collapsible()
+                ->schema([
+                    Placeholder::make('customer_name')
+                        ->label('Nama Customer')
+                        ->content(fn() => auth()->user()?->name ?? '-')
+                        ->extraAttributes([
+                            'class' => 'text-lg font-semibold text-primary-400',
+                        ]),
+
+                    Placeholder::make('booking_code')
+                        ->label('Booking Code')
+                        ->content(fn($get) => $get('booking_id') ?? '-')
+                        ->extraAttributes([
+                            'class' => 'text-lg font-semibold text-primary-400',
+                        ]),
+                ])
+                ->statePath('data')
+                ->columnSpanFull(),
+
         ];
     }
 

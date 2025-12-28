@@ -131,4 +131,19 @@ class User extends Authenticatable
             default => false,
         };
     }
+
+    // protected static function booted()
+    // {
+    //     static::created(function (User $user) {
+
+    //         if ($user->role !== 'customer') {
+    //             return;
+    //         }
+
+    //         Customer::firstOrCreate(
+    //             ['user_id' => $user->id],
+    //             ['no_hp' => $user->phone]
+    //         );
+    //     });
+    // }
 }

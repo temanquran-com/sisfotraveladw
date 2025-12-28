@@ -13,7 +13,7 @@ class GalleryGrid extends Component
     // Menyimpan status pagination dalam query string
     protected $queryString = ['page'];
 
-    
+
     public function render()
     {
         // Ambil data galeri dengan pagination

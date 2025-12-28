@@ -1,7 +1,7 @@
 @props([
     'src' => null,
     // 'label' => 'Thumbnail',
-    'height' => '30rem',
+    'height' => '22rem',
 ])
 
 <x-filament::card class="w-full">
@@ -27,8 +27,7 @@
         @else
             <div
                 class="flex items-center justify-center rounded-lg border text-sm text-gray-400 italic"
-                style="height: {{ $height }}"
-            >
+                style="height: {{ $height }}" >
                 Tidak ada thumbnail
             </div>
         @endif

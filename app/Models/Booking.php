@@ -23,10 +23,12 @@ class Booking extends Model
         'created_by',
     ];
 
+    
     protected $casts = [
         'total_price' => 'decimal:2',
         'sisa_tagihan' => 'decimal:2',
     ];
+
 
     // RELATIONS
     public function customer()
