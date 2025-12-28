@@ -17,10 +17,10 @@ class PaketSaya extends Model
         'created_by',
     ];
 
-    public function paket()
-    {
-        return $this->belongsTo(PaketUmroh::class, 'paket_id');
-    }
+    // public function paket()
+    // {
+    //     return $this->belongsTo(PaketUmroh::class);
+    // }
 
     public function customer()
     {

@@ -95,7 +95,9 @@ class BookingResource extends Resource
                                     ? Carbon::parse($record->tanggal_start)->translatedFormat('d M Y')
                                     : '—';
 
-                                return "{$record->nama_paket} — {$tanggal}";
+                                $kuota = $record->kuota;
+
+                                return "{$record->nama_paket} — {$tanggal} -> Kuota : {$kuota} Org";
                             })
                             ->preload()
                             ->reactive()
@@ -116,13 +118,30 @@ class BookingResource extends Resource
                                     $set('total_price', null);
                                 }
                             }),
-                        TextInput::make('quota')
-                            ->label('Kuota')
-                            ->numeric()
-                            ->disabled() // Disable editing
-                            ->prefix('Paket')
+                        // TextInput::make('quota')
+                        //     ->label('Kuota')
+                        //     ->numeric()
+                        //     ->disabled() // Disable editing
+                        //     ->prefix('Paket')
+                        //     ->suffix('Orang')
+                        //     ->dehydrated(false), // Don't hydrate this field
+
+                        // TextInput::make('quota')
+                        //     ->label('Kuota')
+                        //     ->readOnly()
+                        //     ->suffix('Orang')
+                        //     ->formatStateUsing(
+                        //         fn($record) =>
+                        //         $record?->jadwalKeberangkatan?->quota
+                        //     ),
+
+                        TextInput::make('sisa_quota')
+                            ->label('Sisa Kuota')
+                            ->readOnly()
                             ->suffix('Orang')
-                            ->dehydrated(false), // Don't hydrate this field
+                            ->formatStateUsing(fn ($record) =>
+                                $record?->jadwalKeberangkatan?->sisa_quota
+                        ),
 
                         TextInput::make('total_price')
                             ->label("Biaya")
@@ -259,6 +278,23 @@ class BookingResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    protected static function syncPaketData(?int $paketId, callable $set): void
+    {
+        if (! $paketId) {
+            return;
+        }
+
+        $paket = \App\Models\PaketUmroh::find($paketId);
+
+        if (! $paket) {
+            return;
+        }
+
+        $set('quota', $paket->kuota);
+        $set('sisa_quota', $paket->kuota);
+        $set('total_price', (float) $paket->harga_paket);
     }
 
     protected static function generateBookingCode(

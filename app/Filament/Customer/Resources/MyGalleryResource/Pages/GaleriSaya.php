@@ -19,6 +19,7 @@ use Filament\Forms\Components\ViewField;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Contracts\Support\Htmlable;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use App\Filament\Customer\Resources\MyGalleryResource;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -30,7 +31,6 @@ class GaleriSaya extends Page
     protected static string $resource = MyGalleryResource::class;
 
     protected static string $view = 'filament.customer.resources.my-gallery-resource.pages.galeri-saya';
-
 
     protected static ?string $title = 'Galeri Saya';
 
@@ -93,7 +93,7 @@ class GaleriSaya extends Page
             $data = $this->form->getState();
 
             Gallery::create([
-                'customer_id' => auth()->user()->customer->id,
+                'user_id' => auth()->user()->id,
                 'link_gambar' => $data['link_gambar'],
                 'deskripsi'   => $data['deskripsi'] ?? null,
                 'upload_by'   => auth()->user()->name,
@@ -118,8 +118,8 @@ class GaleriSaya extends Page
     {
         return $form
             ->schema([
-                $this->getFormInputImageSection(),
                 $this->getGridImageSection(),
+                $this->getFormInputImageSection(),
             ])
             ->model($this->record)
             ->statePath('data')
@@ -128,36 +128,60 @@ class GaleriSaya extends Page
 
     protected function getFormInputImageSection(): Component
     {
-        return Section::make('Profile')
+        return Section::make('Form Upload')
+            ->collapsible()
+             ->headerActions([
+                // Action::make('resetImage')
+                //     ->label('Reset')
+                //     ->icon('heroicon-o-arrow-path')
+                //     ->color('gray')
+                //     ->requiresConfirmation(),
+                    // ->action(function (callable $set) {
+                    //     $set('link_gambar', null);
+                    // }),
+            ])
             ->schema([
+                    // FileUpload::make('link_gambar')
+                    //     ->openable()
+                    //     ->maxSize(2048) // 2MB
+                    //     ->visibility('public')
+                    //     ->disk('public')
+                    //     ->directory('gallery-files')
+                    //     ->imageResizeMode('contain')
+                    //     ->imageCropAspectRatio('1:1')
+                    //     ->panelAspectRatio('1:1')
+                    //     ->panelLayout('integrated')
+                    //     ->removeUploadedFileButtonPosition('center bottom')
+                    //     ->uploadButtonPosition('center bottom')
+                    //     ->uploadProgressIndicatorPosition('center bottom')
+                    //     ->getUploadedFileNameForStorageUsing(
+                    //         static fn (TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
+                    //             ->prepend(Auth::user()->id . '_'),
+                    //     )
+                    //     ->extraAttributes(['class' => 'w-32 h-32'])
+                    //     ->acceptedFileTypes(['image/png', 'image/jpeg']),
+
+
                     FileUpload::make('link_gambar')
-                        ->openable()
-                        ->maxSize(1024)
-                        ->visibility('public')
+                        ->label('Gambar Gallery')
                         ->disk('public')
-                        ->directory('logos/company')
-                        ->imageResizeMode('contain')
-                        ->imageCropAspectRatio('1:1')
-                        ->panelAspectRatio('1:1')
-                        ->panelLayout('integrated')
-                        ->removeUploadedFileButtonPosition('center bottom')
-                        ->uploadButtonPosition('center bottom')
-                        ->uploadProgressIndicatorPosition('center bottom')
-                        ->getUploadedFileNameForStorageUsing(
-                            static fn (TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
-                                ->prepend(Auth::user()->id . '_'),
-                        )
-                        ->extraAttributes(['class' => 'w-32 h-32'])
-                        ->acceptedFileTypes(['image/png', 'image/jpeg']),
+                        ->directory('gallery-files')
+                        ->image()
+                        ->visibility('public')
+                        ->imagePreviewHeight('75')
+                        ->panelAspectRatio('3:2')
+                        ->panelLayout('integrated'),
 
                     Textarea::make('deskripsi'),
 
-            ])->columns(2);
+            ])
+            ->columns(2);
     }
 
     protected function getGridImageSection(): Component
     {
         return Section::make('Gallery Saya')
+            ->collapsible()
             ->schema([
                 ViewField::make('gallery_grid')
                     ->view('filament.customer.components.gallery-grid')

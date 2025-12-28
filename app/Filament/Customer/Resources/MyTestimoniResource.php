@@ -7,13 +7,12 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\Testimoni;
 use Filament\Tables\Table;
-use App\Models\MyTestimoni;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Customer\Resources\MyTestimoniResource\Pages;
 use App\Filament\Customer\Resources\MyTestimoniResource\RelationManagers;
+
 
 class MyTestimoniResource extends Resource
 {
@@ -36,11 +35,49 @@ class MyTestimoniResource extends Resource
         return Filament::getCurrentPanel()?->getId() === 'customer';
     }
 
+    /**
+    * NO CREATE / EDIT FROM HERE
+    */
+    public static function canCreate(): bool
+    {
+        return true;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return true;
+    }
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
+                // Forms\Components\Select::make('user_id')
+                //     ->label('Customer Name')
+                //     ->relationship('user', 'name')
+                //     ->searchable()
+                //     ->preload()
+                //     ->default(null),
+                Forms\Components\Textarea::make('content')
+                    ->required()
+                    ->columnSpanFull(),
+                Forms\Components\Select::make('star_count')
+                    ->label("Rating (Stars)")
+                    ->options([
+                    '5' => '5 Stars',
+                    '4' => '4 Stars',
+                    '3' => '3 Stars',
+                    '2' => '2 Stars',
+                    '1' => '1 Star',
+                    ])
+                    ->default('5')
+                    ->columnSpanFull()
+                    ->required(),
+                // Forms\Components\DateTimePicker::make('last_update')
+                //     ->label('Last Update')
+                //     ->default(now())
+                //     ->columnSpanFull()
+                //     ->required(),
             ]);
     }
 
@@ -48,20 +85,28 @@ class MyTestimoniResource extends Resource
     {
         return $table
             ->columns([
-                //
+                // Tables\Columns\TextColumn::make('user.name')
+                //     ->label('Customer')
+                //     ->searchable()
+                //     ->sortable(),
+                Tables\Columns\TextColumn::make('content')
+                    ->wrap()
+                    ->sortable(),
+                 Tables\Columns\TextColumn::make('star_count')
+                    ->label("Rating (Stars)")
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                Tables\Filters\TrashedFilter::make(),
-            ])
+
             ->actions([
                 Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                ]),
             ]);
     }
 
@@ -81,11 +126,23 @@ class MyTestimoniResource extends Resource
         ];
     }
 
+    // public static function getEloquentQuery(): Builder
+    // {
+    //     return parent::getEloquentQuery()
+    //         ->withoutGlobalScopes([
+    //             SoftDeletingScope::class,
+    //         ]);
+    // }
+
     public static function getEloquentQuery(): Builder
     {
+        $userID = Filament::auth()->user()?->id;
+
         return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
+            ->when(
+                $userID,
+                fn($query) =>
+                $query->where('user_id', $userID)
+            );
     }
 }

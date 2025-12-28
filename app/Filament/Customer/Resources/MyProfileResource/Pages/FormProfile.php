@@ -31,6 +31,7 @@ use App\Filament\Customer\Resources\MyProfileResource;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
+
 class FormProfile extends Page
 {
     protected static string $resource = MyProfileResource::class;
@@ -317,6 +318,7 @@ class FormProfile extends Page
     {
         return Section::make('Preview Dokumen')
             ->collapsible()
+            ->collapsed(true)
             ->schema([
                 Grid::make(2)
                     ->schema([

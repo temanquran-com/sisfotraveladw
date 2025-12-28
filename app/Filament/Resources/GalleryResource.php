@@ -16,6 +16,7 @@ use App\Filament\Resources\GalleryResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\GalleryResource\RelationManagers;
 
+
 class GalleryResource extends Resource
 {
     protected static ?string $model = Gallery::class;
@@ -24,7 +25,6 @@ class GalleryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    
     public static function form(Form $form): Form
     {
         return $form
@@ -55,6 +55,7 @@ class GalleryResource extends Resource
                     ->maxLength(255),
             ]);
     }
+
 
     public static function table(Table $table): Table
     {

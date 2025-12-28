@@ -1,6 +1,6 @@
 @php
     $galleries = \App\Models\Gallery::query()
-        ->where('customer_id', auth()->user()->customer->id)
+        ->where('user_id', auth()->user()->id)
         ->latest()
         ->get();
 @endphp

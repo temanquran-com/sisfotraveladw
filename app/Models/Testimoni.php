@@ -13,6 +13,7 @@ class Testimoni extends Model
         'user_id',
         'content',
         'star_count',
+        'last_update',
     ];
 
     public function user()

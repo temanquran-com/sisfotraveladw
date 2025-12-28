@@ -10,6 +10,7 @@ class Gallery extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'link_gambar',
         'deskripsi',
         'upload_by'
@@ -17,10 +18,10 @@ class Gallery extends Model
 
 
     // RELATIONS
-    public function customer()
-    {
-        return $this->belongsTo(Customer::class, 'customer_id');
-    }
+    // public function customer()
+    // {
+    //     return $this->belongsTo(Customer::class, 'customer_id');
+    // }
 
     public function creator()
     {

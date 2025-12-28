@@ -19,6 +19,7 @@ use App\Filament\Resources\PaymentResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PaymentResource\RelationManagers;
 
+
 class PaymentResource extends Resource
 {
     protected static ?string $model = Payment::class;

@@ -11,6 +11,10 @@
                             {!! $gallery->deskripsi !!}
                         </div>
                         <small class="text-primary">{{ $gallery->upload_by }}</small>
+                         <br>
+                            <p class="text-xs text-gray-400 mt-1">
+                                {{ $gallery->created_at->diffForHumans() }}
+                            </p>
                     </div>
                 </div>
             </div>

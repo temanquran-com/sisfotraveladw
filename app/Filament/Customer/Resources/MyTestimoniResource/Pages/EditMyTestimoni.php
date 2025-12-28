@@ -2,9 +2,10 @@
 
 namespace App\Filament\Customer\Resources\MyTestimoniResource\Pages;
 
-use App\Filament\Customer\Resources\MyTestimoniResource;
+use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use App\Filament\Customer\Resources\MyTestimoniResource;
 
 class EditMyTestimoni extends EditRecord
 {
@@ -13,9 +14,22 @@ class EditMyTestimoni extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
-            Actions\ForceDeleteAction::make(),
-            Actions\RestoreAction::make(),
+            // Actions\DeleteAction::make(),
+            // Actions\ForceDeleteAction::make(),
+            // Actions\RestoreAction::make(),
         ];
+    }
+
+     protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['last_update'] = Carbon::now();
+        $data['user_id'] = auth()->id();
+
+        return $data;
+    }
+
+     protected function getRedirectUrl(): string
+    {
+        return static::getResource()::getUrl('index');
     }
 }

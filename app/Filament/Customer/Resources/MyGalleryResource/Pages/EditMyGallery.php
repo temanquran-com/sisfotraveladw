@@ -2,9 +2,11 @@
 
 namespace App\Filament\Customer\Resources\MyGalleryResource\Pages;
 
-use App\Filament\Customer\Resources\MyGalleryResource;
+use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use App\Filament\Customer\Resources\MyGalleryResource;
+
 
 class EditMyGallery extends EditRecord
 {
@@ -18,4 +20,19 @@ class EditMyGallery extends EditRecord
             Actions\RestoreAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['upload_by'] = auth()->user?->name();
+        $data['user_id'] = auth()->id();
+
+        return $data;
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return static::getResource()::getUrl('index');
+    }
+
+
 }

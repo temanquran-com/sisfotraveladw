@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('galleries', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('link_gambar');
             $table->text('deskripsi');
             $table->string('upload_by');

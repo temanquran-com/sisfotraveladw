@@ -10,6 +10,8 @@ use App\Models\MyGallery;
 use Filament\Tables\Table;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Customer\Resources\MyGalleryResource\Pages;
@@ -40,7 +42,24 @@ class MyGalleryResource extends Resource
     {
         return $form
             ->schema([
-                //
+                RichEditor::make('deskripsi')
+                    ->required()
+                    ->columnSpanFull(),
+                FileUpload::make('link_gambar')
+                    ->label('Gambar Gallery')
+                    ->image() // Ensures only image files can be uploaded
+                    ->disk('public') // Store files on the 'public' disk (in `storage/app/public`)
+                    ->directory('gallery-files') // Store images in the 'tour-leaders' folder inside the 'public' disk
+                    ->maxSize(2048) // Max size in kilobytes (2MB)
+                    ->enableOpen() // Allow users to open the image
+                    ->columnSpanFull()
+                    ->default(null), // Default value for the field
+
+                // Forms\Components\TextInput::make('upload_by')
+                //     ->default('Administrator')
+                //     ->readOnly()
+                //     ->required()
+                //     ->maxLength(255),
             ]);
     }
 
@@ -51,7 +70,7 @@ class MyGalleryResource extends Resource
                 //
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                // Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -59,8 +78,8 @@ class MyGalleryResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
+                    // Tables\Actions\ForceDeleteBulkAction::make(),
+                    // Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -71,6 +90,7 @@ class MyGalleryResource extends Resource
             //
         ];
     }
+
 
     public static function getPages(): array
     {

@@ -23,7 +23,7 @@ class Booking extends Model
         'created_by',
     ];
 
-    
+
     protected $casts = [
         'total_price' => 'decimal:2',
         'sisa_tagihan' => 'decimal:2',
@@ -59,6 +59,11 @@ class Booking extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function paket()
+    {
+        return $this->belongsTo(PaketUmroh::class, 'paket_umroh_id');
     }
 
     // BOOT: Auto-generate booking code
