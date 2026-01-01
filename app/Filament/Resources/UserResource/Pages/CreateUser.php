@@ -1,19 +1,21 @@
 <?php
 
-namespace App\Filament\Staff\Resources\PendaftaranResource\Pages;
+namespace App\Filament\Resources\UserResource\Pages;
 
+use Carbon\Carbon;
 use Filament\Actions;
 use App\Models\Customer;
+use App\Filament\Resources\UserResource;
 use Filament\Resources\Pages\CreateRecord;
-use App\Filament\Staff\Resources\PendaftaranResource;
 
-class CreatePendaftaran extends CreateRecord
+
+class CreateUser extends CreateRecord
 {
-    protected static string $resource = PendaftaranResource::class;
+    protected static string $resource = UserResource::class;
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        // $data['password'] = bcrypt($data['password']);
+        $data['email_verified_at'] = Carbon::now();
 
         if (! empty($data['password'])) {
             $data['password'] = bcrypt($data['password']);
@@ -24,8 +26,7 @@ class CreatePendaftaran extends CreateRecord
         return $data;
     }
 
-
-    protected function afterCreate(): void
+      protected function afterCreate(): void
     {
         /** @var User $user */
         $user = $this->record;

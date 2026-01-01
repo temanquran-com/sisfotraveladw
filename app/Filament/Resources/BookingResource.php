@@ -55,7 +55,6 @@ class BookingResource extends Resource
                         //         ))
                         //     )
                         //     ->required(),
-
                         Select::make('customer_id')
                             ->label('Customer')
                             ->relationship('customer', 'nama_ktp')
@@ -174,6 +173,7 @@ class BookingResource extends Resource
                     ])
                         ->columns(3),
                 ])->aside(false),
+
 
 
                 Select::make('status')

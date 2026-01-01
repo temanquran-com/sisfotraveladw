@@ -32,6 +32,7 @@ class StaffPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 'Kelola Customer',
+                'Kelola Booking',
                 'Kelola Pembayaran',
                 'Kelola Jadwal',
                 'Perlindung',

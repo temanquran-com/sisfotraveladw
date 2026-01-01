@@ -12,7 +12,6 @@ use App\Filament\Customer\Resources\CustomerResource;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-
 class Register extends BaseRegister
 {
     // protected static string $resource = CustomerResource::class;
@@ -29,7 +28,11 @@ class Register extends BaseRegister
                 'email' => $data['email'],
                 'phone' => $data['phone'],
                 'password' => bcrypt($data['password']),
+                'role' => 'customer'
             ]);
+
+            // assign spatie roles
+            $user->assignRole('customer');
 
             /** 2. Create Customer (auto populate) */
             $user->customer()->create([

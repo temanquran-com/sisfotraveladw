@@ -72,6 +72,7 @@ class FormProfile extends Page
     //     ],
     // ];
 
+
     // #[Locked]
     public ?Customer $record = null;
 
@@ -476,6 +477,7 @@ class FormProfile extends Page
             ->keyBindings(['mod+s']);
     }
 
+    
     public static function canView(Model $record): bool
     {
         try {

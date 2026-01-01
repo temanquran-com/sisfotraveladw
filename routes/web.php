@@ -39,12 +39,12 @@ Route::get('/login', function () {
 //     Route::get('/register', Register::class)->name('register');
 // });
 
-Route::post('/logout', function () {
-    auth()->logout();
-    request()->session()->invalidate();
-    request()->session()->regenerateToken();
-    return redirect('/');
-})->name('logout');
+// Route::post('/logout', function () {
+//     auth()->logout();
+//     request()->session()->invalidate();
+//     request()->session()->regenerateToken();
+//     return redirect('/');
+// })->name('logout');
 
 
 

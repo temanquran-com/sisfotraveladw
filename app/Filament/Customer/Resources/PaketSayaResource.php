@@ -18,6 +18,7 @@ use App\Filament\Customer\Clusters\MyAccount;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Customer\Resources\PaketSayaResource\Pages;
 use App\Filament\Customer\Resources\PaketSayaResource\RelationManagers;
+use App\Models\Payment;
 
 class PaketSayaResource extends Resource
 {
@@ -60,19 +61,7 @@ class PaketSayaResource extends Resource
     {
         return $form
             ->schema([
-                // Forms\Components\TextInput::make('customer_id')
-                //     ->required()
-                //     ->readOnly()
-                //     ->default(auth()->id()),
-                // Forms\Components\TextInput::make('booking_id')
-                //     ->required()
-                //     ->numeric(),
-                // Forms\Components\TextInput::make('payment_id')
-                //     ->required()
-                //     ->numeric(),
-                // Forms\Components\TextInput::make('created_by')
-                //     ->required()
-                //     ->numeric(),
+                //
             ]);
     }
 
@@ -127,6 +116,21 @@ class PaketSayaResource extends Resource
                         )
                         ->money('IDR', locale: 'id'),
 
+                    TextColumn::make('status_payment')
+                        ->label('Status')
+                        ->weight(FontWeight::Bold)
+                        ->badge()
+                        ->prefix('Status : ')
+                         ->state(function ($record) {
+                            return Payment::where('booking_id', $record->id)
+                                ->latest()
+                                ->value('status') ?? 'Belum Bayar';
+                        })
+                        ->tooltip('Menunggu Verifikasi Admin')
+                        ->color(fn ($state) =>
+                            str_contains($state, 'verified') ? 'success' : 'warning'
+                        ),
+
                 ])
             ])
             ->filters([
@@ -142,7 +146,7 @@ class PaketSayaResource extends Resource
             ]);
     }
 
-    
+
     public static function getRelations(): array
     {
         return [

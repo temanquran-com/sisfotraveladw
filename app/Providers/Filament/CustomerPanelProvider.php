@@ -40,7 +40,6 @@ class CustomerPanelProvider extends PanelProvider
             // ->topNavigation()
             // ->authGuard('web')
             // ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE, fn (): string => Blade::render('<x-filament::link href="' . config('app.url') . '" size="sm" icon="heroicon-o-arrow-left">back to website</x-filament::link>'))
-
             ->pages([
 
 

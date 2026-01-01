@@ -13,10 +13,7 @@ class CreatePaketSaya extends CreateRecord
 {
     protected static string $resource = PaketSayaResource::class;
 
-    protected function getRedirectUrl(): string
-    {
-        return static::getResource()::getUrl('index');
-    }
+
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
@@ -51,5 +48,10 @@ class CreatePaketSaya extends CreateRecord
         // });
 
         return $data;
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return static::getResource()::getUrl('index');
     }
 }

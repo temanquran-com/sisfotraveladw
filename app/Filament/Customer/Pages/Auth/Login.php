@@ -9,6 +9,7 @@ use Filament\Forms\Components\Component;
 use Filament\Pages\Auth\Login as BaseAuth;
 
 
+
 class Login extends BaseAuth
 {
     // protected static ?string $navigationIcon = 'heroicon-o-document-text';

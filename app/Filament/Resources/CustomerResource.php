@@ -2,15 +2,16 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CustomerDocumentResource\RelationManagers\DocumentsRelationManager;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Customer;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Infolists\Components\Split;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
@@ -18,7 +19,7 @@ use App\Filament\Resources\CustomerResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use RelationManagers\CustomerDocumentsRelationManager;
 use App\Filament\Resources\CustomerResource\RelationManagers;
-use Filament\Forms\Components\Section;
+use App\Filament\Resources\CustomerDocumentResource\RelationManagers\DocumentsRelationManager;
 
 class CustomerResource extends Resource
 {
@@ -318,6 +319,20 @@ class CustomerResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+
+                /* =========================
+                 * EXPORT PDF (FIXED)
+                 * ========================= */
+                Tables\Actions\BulkAction::make('export_pdf')
+                    ->label('Export PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->action(function ($records) {
+                        return response()->streamDownload(function () use ($records) {
+                            echo Pdf::loadView('reports.customer-report', [
+                                'records' => $records,
+                            ])->stream();
+                        }, 'customers-report.pdf');
+                    }),
             ]);
     }
 

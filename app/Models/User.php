@@ -39,6 +39,8 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $guard_name = 'web'; // penting
+
 
     // protected static function booted(): void
     // {
@@ -132,18 +134,13 @@ class User extends Authenticatable
         };
     }
 
-    // protected static function booted()
+    // protected static function booted(): void
     // {
     //     static::created(function (User $user) {
-
-    //         if ($user->role !== 'customer') {
-    //             return;
+    //         if (! $user->roles()->exists()) {
+    //             $user->assignRole('customer');
     //         }
-
-    //         Customer::firstOrCreate(
-    //             ['user_id' => $user->id],
-    //             ['no_hp' => $user->phone]
-    //         );
     //     });
     // }
+
 }

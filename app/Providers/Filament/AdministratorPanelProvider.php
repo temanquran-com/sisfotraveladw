@@ -43,6 +43,7 @@ class AdministratorPanelProvider extends PanelProvider
                 'Kelola Paket',
                 'Gallery & Testimoni',
                 'Master Data',
+                'Kelola User',
             ])
             ->discoverResources(
                 in: app_path('Filament/Resources'),

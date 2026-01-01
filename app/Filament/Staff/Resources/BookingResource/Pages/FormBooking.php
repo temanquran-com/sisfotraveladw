@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Customer\Resources\PaketSayaResource\Pages;
+namespace App\Filament\Staff\Resources\BookingResource\Pages;
 
 use App\Models\Booking;
 use App\Models\Payment;
@@ -9,12 +9,10 @@ use App\Models\PaketUmroh;
 use Illuminate\Support\Str;
 use Filament\Resources\Pages\Page;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\HtmlString;
 use App\Models\JadwalKeberangkatan;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
-use Filament\Support\Exceptions\Halt;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\Textarea;
@@ -24,21 +22,18 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Concerns\InteractsWithForms;
-use App\Filament\Customer\Resources\PaketSayaResource;
+use App\Filament\Staff\Resources\BookingResource;
 
-class FormPaketSaya extends Page implements HasForms
+class FormBooking extends Page implements HasForms
 {
-    // Associating this page with the corresponding resource
-    protected static string $resource = PaketSayaResource::class;
+    protected static string $resource = BookingResource::class;
 
-    // Path to the view of this page
-    protected static string $view = 'filament.customer.resources.paket-saya-resource.pages.form-paket-saya';
+    protected static string $view = 'filament.staff.resources.booking-resource.pages.form-booking';
 
     // Form handling and state management
     use InteractsWithForms;
 
-
-    // Properties to store form data and selected values
+   // Properties to store form data and selected values
     public $pakets = [];
     public $payment_id;
     public $thumbnail;
@@ -70,13 +65,13 @@ class FormPaketSaya extends Page implements HasForms
         // Fill the form with existing data or defaults
         // $this->form->fill($this->data);
 
-        if (auth()->check()) {
-            $customer = auth()->user()->customer;
+        // if (auth()->check()) {
+        //     $customer = auth()->user()->customer;
 
-            if ($customer) {
-                $this->data['customer_id'] = $customer->id;
-            }
-        }
+        //     if ($customer) {
+        //         $this->data['customer_id'] = $customer->id;
+        //     }
+        // }
 
         if ($this->data['paket_id']) {
             $this->syncPaketDetails(
@@ -118,51 +113,9 @@ class FormPaketSaya extends Page implements HasForms
                                         $set('booking_id', $bookingCode);
                                     }),
 
-                                // Select::make('paket_id')
-                                //     ->label('Pilih Paket Umroh')
-                                //     ->options(PaketUmroh::pluck('nama_paket', 'id'))
-                                //     ->live()
-                                //     ->afterStateUpdated(function ($state, callable $set) {
 
-                                //         $this->syncPaketDetails($state, $set);
-
-                                //         $set('booking_id', $this->generateBookingCode(
-                                //             auth()->id(),
-                                //             $state
-                                //         ));
-                                //     }),
-
-                                // Nested fields showing Paket details
-                                // TextInput::make('paket_details.harga_paket')
-                                //     ->prefix('Rp.')
-                                //     ->label('Harga Paket')
-                                //     ->disabled()
-                                //     ->dehydrated(true)
-                                //     // ->formatStateUsing(fn ($state, $get) =>
-                                //     //     optional(
-                                //     //         PaketUmroh::find($get('paket_id'))
-                                //     //     )->harga_formatted
-                                //     // )
-                                //     ->formatStateUsing(
-                                //         fn($state) =>
-                                //         $state ? number_format($state, 0, ',', '.') : null
-                                //     ),
-
-                                // TextInput::make('paket_details.durasi_hari')
-                                //     ->label('Durasi Hari')
-                                //     ->suffix('Hari')
-                                //     ->disabled()
-                                //     ->dehydrated(true),
                                 Section::make([
-                                    // TextInput::make('paket_details.harga_paket')
-                                    //     ->prefix('Rp.')
-                                    //     ->label('Harga Paket')
-                                    //     ->disabled()
-                                    //     ->dehydrated(true)
-                                    //     ->formatStateUsing(
-                                    //         fn($state) =>
-                                    //         $state ? number_format($state, 0, ',', '.') : null
-                                    //     ),
+
                                     Placeholder::make('harga_paket_view')
                                         ->label('Harga Paket')
                                         ->extraAttributes([
@@ -228,11 +181,6 @@ class FormPaketSaya extends Page implements HasForms
                                     ])
                                     : '-'
                             ),
-                        // ->content(fn($get) => dd(
-                        //     $get('paket_details.exclude'),
-                        //     $get('paket_details.thumbnail'),
-                        //     asset('storage/' . $get('paket_details.thumbnail'))
-                        // )),
 
                     ])
                         ->statePath('data') // Bind all fields to $this->data
@@ -240,16 +188,19 @@ class FormPaketSaya extends Page implements HasForms
 
                 ]),
 
-            Section::make('Data Booking')
+            Section::make('Pilih Customer')
                 ->collapsible()
-                ->collapsed(true)
+                ->collapsed(false)
                 ->schema([
-                    Placeholder::make('customer_name')
-                        ->label('Nama Customer')
-                        ->content(fn() => auth()->user()?->name ?? '-')
-                        ->extraAttributes([
-                            'class' => 'text-lg font-semibold text-primary-400',
-                        ]),
+                    Select::make('customer_id')
+                            ->label('Customer')
+                            ->relationship('customer', 'nama_ktp')
+                            ->getOptionLabelFromRecordUsing(
+                                fn($record) => $record->nama_ktp
+                                    ?? 'Customer #' . $record->id
+                            )
+                            ->reactive()
+                            ->required(),
 
                     Placeholder::make('booking_code')
                         ->label('Booking Code')
@@ -345,43 +296,9 @@ class FormPaketSaya extends Page implements HasForms
         // dd($paket->thumbnail);
     }
 
-    // Method to handle saving the form data
-    // public function save()
-    // {
-    //     // Ensure necessary fields are set before saving
-    //     $this->validateBookingId();  // Validate if booking_id is set
-
-    //     // Save the data to the PaketSaya model
-    //     $paketSaya = PaketSaya::create([
-    //         'customer_id' => 2,
-    //         'paket_id' => $this->paket_id,
-    //         'booking_id' => 31,
-    //         'payment_id' => 1,
-    //         'created_by' => auth()->id(),
-    //     ]);
-
-    //     // Flash message to confirm successful save
-    //     session()->flash('message', 'Paket has been successfully saved!');
-    // }
-
     public function save()
     {
         $data = $this->form->getState();
-
-        // if (empty($data['booking_id'])) {
-        //     $this->addError('booking_id', 'Booking wajib ada');
-        //     return;
-        // }
-
-        // PaketSaya::create([
-        //     'customer_id' => auth()->id(),
-        //     'booking_id'  => $data['booking_id'],
-        //     'payment_id'  => $data['payment_id'] ?? null,
-        //     'paket_id'    => $data['paket_id'],
-        //     'created_by'  => auth()->id(),
-        // ]);
-
-        // $this->notify('success', 'Paket berhasil disimpan');
 
         DB::transaction(function () use ($data) {
 
@@ -389,10 +306,8 @@ class FormPaketSaya extends Page implements HasForms
 
             /** 1️⃣ CREATE BOOKING */
             $booking = Booking::create([
-                // 'customer_id' => auth()->id(),
-                'customer_id' => auth()->user()->customer->id,
+                'customer_id' => $data['data']['customer_id'],
                 'paket_umroh_id' => $data['data']['paket_id'],
-                // 'tanggal_keberangkatan' => $data['data']['tanggal_start'], //bukan plain date tapi id dari jadwal keberangakatan
                 'jadwal_keberangkatan_id' => $data['data']['jadwal_keberangkatan_id'],
                 'booking_code' => $data['data']['booking_id'],
                 'status' => 'waiting_payment',
@@ -416,7 +331,7 @@ class FormPaketSaya extends Page implements HasForms
 
             /** 3️⃣ CREATE PAKET SAYA */
             PaketSaya::create([
-                'customer_id' => auth()->user()->customer->id,
+                'customer_id' => $data['data']['customer_id'],
                 'paket_id' => $data['data']['paket_id'],
                 'booking_id' => $booking->id,
                 'payment_id' => $payment->id,
@@ -447,15 +362,6 @@ class FormPaketSaya extends Page implements HasForms
                 return;
             }
         });
-
-
-        // try {
-        //     $data = $this->form->getState();
-
-        //     $this->handleRecordUpdate($this->record, $data);
-        // } catch (Halt $exception) {
-        //     return;
-        // }
 
         $this->getSavedNotification()->send();
     }
@@ -518,4 +424,9 @@ class FormPaketSaya extends Page implements HasForms
 
         return $code;
     }
+
+
+
+
+
 }
